@@ -24,3 +24,11 @@ class Camera:
     def tick(self):
         if self.mode is not None:
             self.mode.update(self)
+
+
+class Renderer:
+
+    def render(self, camera, screen, world):
+        screen.fill((0, 0, 0))
+        world.render(screen, camera)
+        pygame.display.flip()

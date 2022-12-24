@@ -1,17 +1,17 @@
-import pygame as pygame
+import pygame
 
 import main_menu
-from renderer import Camera
+from renderer import Camera, Renderer
 
 
 class Game:
 
     def __init__(self):
         # При инициализации клиента начинается игра
-        self.state = TestState(self)
+        self.state = MainMenuState(self)
         self.heartbeat = GameHeartbeat(self)
         self.screen = None
-        self.camera = Camera()
+        self.renderer = Renderer()
 
     def start(self):
         pygame.init()
@@ -21,7 +21,7 @@ class Game:
         self.heartbeat.start()
 
     def update(self):
-        self.state.update()
+        self.state = self.state.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.heartbeat.stop()
@@ -32,14 +32,16 @@ class Game:
         self.state.on_click(event.pos)
 
     def close(self):
+        self.heartbeat.stop()
         pygame.display.quit()
         pygame.quit()
 
 
 class GameHeartbeat:
 
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, game):
+        self.client = game
+        self.clock = pygame.time.Clock()
         self.running = False
 
     def start(self):
@@ -47,28 +49,50 @@ class GameHeartbeat:
             raise RuntimeError('Heartbeat has already started!')
         self.running = True
         while self.running:
-            # TODO: сделать ограничение фпс
             self.client.update()
+            self.clock.tick(30)
 
     def stop(self):
         self.running = False
 
 
-class TestState:
+class GameState:
 
     def __init__(self, game):
         self.game = game
-        self.world = main_menu.load_menu()
 
     def update(self):
-        self.world.render(self.game.screen, self.game.camera)
-        pygame.display.flip()
+        return MainMenuState(self.game)
 
-    def on_click(self, pos):
-        clicked_obj = self.world.get_obj(pos)
+    def on_click(self, screen_pos):
+        pass
+
+
+class MainMenuState(GameState):
+
+    def __init__(self, game):
+        super().__init__(game)
+        self.world = main_menu.load_menu()
+        self.camera = Camera()
+
+    def update(self):
+        self.world.update()
+        self.game.renderer.render(self.camera, self.game.screen, self.world)
+        return self
+
+    def on_click(self, screen_pos):
+        game_pos = (screen_pos[0] + self.game.camera.x, screen_pos[1] - self.game.camera.y)
+        clicked_obj = self.world.get_obj(game_pos)
         if clicked_obj is None:
             return
-        clicked_obj.click(pos)
+        clicked_obj.click(screen_pos, game_pos)
+
+
+class GameInProgressState(GameState):
+
+    def __init__(self, game):
+        super().__init__(game)
+        # TODO: загрузить уровень
 
 
 GAME = None
@@ -77,8 +101,13 @@ GAME = None
 def main():
     global GAME
     pygame.init()
+    pygame.font.init()
     GAME = Game()
     GAME.start()
+
+
+def get_game():
+    return GAME
 
 
 if __name__ == '__main__':

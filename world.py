@@ -38,5 +38,10 @@ class World(pygame.sprite.Group):
             sprite.render(camera, screen)
 
     def draw(self, surface):
+        # вызов этого метода эквивалентен рендеру с камерой по координатам 0, 0
         raise NotImplementedError('use world.render(screen, camera)')
+
+    def update(self):
+        for obj in list(self.game_objects.values()):
+            obj.update()
 
