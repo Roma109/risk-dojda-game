@@ -17,7 +17,7 @@ class Player(Human):
         self.camera = camera
         self.camera.mode = PlayerFollowMode(self)
         self.speed = 10
-        self.control = Control()
+        self.control = Control() # TODO: сделать управление
 
     def tick(self):
         self.camera.tick()
@@ -29,6 +29,7 @@ class Player(Human):
 class Control: # управление игроком
 
     def __init__(self):
+        # управление
         self.buttons = dict()
 
     def get_action(self, button):
@@ -46,7 +47,7 @@ class Action:
 
 class MoveAction(Action):
 
-    def __init__(self, direction):
+    def __init__(self, direction): # direction - кортеж с направлениями по x и y - числами от 0 до 1
         self.direction = direction
 
     def perform(self, player, button):
