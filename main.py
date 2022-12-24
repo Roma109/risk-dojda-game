@@ -1,35 +1,27 @@
-import os
-import sys
-
 import pygame as pygame
 
 import main_menu
-from renderer import Renderer, Camera
+from renderer import Camera
 
 
-class Server:
-
-    def __init__(self):
-        # TODO: init world
-        pass
-
-
-class Client:
+class Game:
 
     def __init__(self):
         # При инициализации клиента начинается игра
         self.state = TestState(self)
-        self.heartbeat = ClientHeartbeat(self)
-        infoObject = pygame.display.Info()
-        self.screen = pygame.display.set_mode((infoObject.current_w, infoObject.current_h))
+        self.heartbeat = GameHeartbeat(self)
+        self.screen = None
         self.camera = Camera()
-        self.renderer = Renderer()
+
+    def start(self):
         pygame.init()
         pygame.display.set_caption("Риск дождя")
+        display_info = pygame.display.Info()
+        self.screen = pygame.display.set_mode((display_info.current_w, display_info.current_h))
         self.heartbeat.start()
 
-    def tick(self):
-        self.state.tick()
+    def update(self):
+        self.state.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.heartbeat.stop()
@@ -44,7 +36,7 @@ class Client:
         pygame.quit()
 
 
-class ClientHeartbeat:
+class GameHeartbeat:
 
     def __init__(self, client):
         self.client = client
@@ -55,7 +47,8 @@ class ClientHeartbeat:
             raise RuntimeError('Heartbeat has already started!')
         self.running = True
         while self.running:
-            self.client.tick()
+            # TODO: сделать ограничение фпс
+            self.client.update()
 
     def stop(self):
         self.running = False
@@ -63,12 +56,12 @@ class ClientHeartbeat:
 
 class TestState:
 
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, game):
+        self.game = game
         self.world = main_menu.load_menu()
 
-    def tick(self):
-        self.client.renderer.render(self.world, self.client.screen, self.client.camera)
+    def update(self):
+        self.world.render(self.game.screen, self.game.camera)
         pygame.display.flip()
 
     def on_click(self, pos):
@@ -78,9 +71,14 @@ class TestState:
         clicked_obj.click(pos)
 
 
+GAME = None
+
+
 def main():
+    global GAME
     pygame.init()
-    client = Client()
+    GAME = Game()
+    GAME.start()
 
 
 if __name__ == '__main__':

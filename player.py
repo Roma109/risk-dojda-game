@@ -3,7 +3,7 @@ from renderer import Camera, PlayerFollowMode
 
 
 class Human(Creature):
-
+# использовался бы в мультиплеере, может стоит выпилить
     def __init__(self, x, y, world, image):
         super().__init__(x, y, world, image)
 

@@ -1,5 +1,4 @@
 import uuid
-from typing import Any
 
 import pygame.sprite
 
@@ -7,7 +6,7 @@ import pygame.sprite
 class GameObject(pygame.sprite.Sprite):
 
     def __init__(self, x, y, world, image, active=True):
-        super().__init__(world.sprites_group)
+        super().__init__(world)
         self.world = world
         self.image = image
         self.rect = image.get_rect()
@@ -16,34 +15,31 @@ class GameObject(pygame.sprite.Sprite):
         self.active = active
         self.id = uuid.uuid4()
 
-    def update(self, *args: Any, **kwargs: Any) -> None:
+    def update(self):
+        pass
+
+    def collide(self, obj):
         pass
 
     def render(self, camera, screen):
         if not self.active:
             return
-        screen.blit(self.image, (10, 10))
+        screen.blit(self.image, (camera.x, camera.y))
 
     def is_inside(self, point):
         return self.image.get_bounding_rect().collidepoint(point[0], point[1])
 
 
-class Tickable(GameObject):
+class Entity(GameObject):
 
     def __init__(self, x, y, world, image):
         super().__init__(x, y, world, image)
+        self.vx = 0
+        self.vy = 0
 
-    def tick(self):
-        pass
-
-
-class Entity(Tickable):
-
-    def __init__(self, x, y, world, image):
-        super().__init__(x, y, world, image)
-
-    def collide(self):
-        pass
+    def update(self):
+        self.rect.x += self.vx
+        self.rect.y += self.vy
 
 
 class Creature(Entity):
