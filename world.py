@@ -39,4 +39,5 @@ class World(pygame.sprite.Group):
     def update(self):
         for obj in list(self.game_objects.values()):
             obj.update()
+            self.camera.apply(obj)
 
