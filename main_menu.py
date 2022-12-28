@@ -24,7 +24,10 @@ class Button(GameObject):
 
 def load_menu() -> MainMenu:
     new_game = pygame.image.load('assets/main_menu/new_game.png')
+    background = pygame.transform.scale(pygame.image.load('assets/main_menu/background.jpg'),
+                                            (1920, 1080))
     # TODO: начать игру по нажатию на кнопку
     menu = MainMenu()
+    menu.add_object(GameObject(0, 0, menu, background))
     menu.add_object(Button(10, 10, menu, new_game))
     return menu

@@ -8,6 +8,8 @@ class Game:
 
     def __init__(self):
         # При инициализации клиента начинается игра
+        self.width = None
+        self.height = None
         self.state = MainMenuState(self)
         self.heartbeat = GameHeartbeat(self)
         self.screen = None
@@ -17,6 +19,8 @@ class Game:
         pygame.init()
         pygame.display.set_caption("Риск дождя")
         display_info = pygame.display.Info()
+        self.width = display_info.current_w
+        self.height = display_info.current_h
         self.screen = pygame.display.set_mode((display_info.current_w, display_info.current_h))
         self.heartbeat.start()
 
@@ -76,12 +80,16 @@ class MainMenuState(GameState):
         self.camera = Camera()
 
     def update(self):
+        #background = pygame.transform.scale(pygame.image.load('assets/main_menu/background.jpg'),
+                                            #(self.game.width, self.game.height))
+        #self.game.screen.blit(background, (0, 0))
         self.world.update()
         self.game.renderer.render(self.camera, self.game.screen, self.world)
         return self
 
     def on_click(self, screen_pos):
-        game_pos = (screen_pos[0] + self.game.camera.x, screen_pos[1] - self.game.camera.y)
+
+        game_pos = (screen_pos[0] + self.camera.x, screen_pos[1] - self.camera.y)
         clicked_obj = self.world.get_obj(game_pos)
         if clicked_obj is None:
             return

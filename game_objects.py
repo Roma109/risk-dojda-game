@@ -33,6 +33,9 @@ class GameObject(pygame.sprite.Sprite):
         self.rect.x += x
         self.rect.y += y
 
+    def click(self, *args):
+        pass
+
 
 class Entity(GameObject):
 
