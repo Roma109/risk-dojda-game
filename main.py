@@ -1,7 +1,6 @@
 import pygame
 
 import main_menu
-from renderer import Camera, Renderer
 
 
 class Game:
@@ -11,13 +10,14 @@ class Game:
         self.state = MainMenuState(self)
         self.heartbeat = GameHeartbeat(self)
         self.screen = None
-        self.renderer = Renderer()
+        self.display_info = None
 
     def start(self):
         pygame.init()
         pygame.display.set_caption("Риск дождя")
-        display_info = pygame.display.Info()
-        self.screen = pygame.display.set_mode((display_info.current_w, display_info.current_h))
+        self.display_info = pygame.display.Info()
+        self.screen = pygame.display.set_mode((self.display_info.current_w,
+                                               self.display_info.current_h))
         self.heartbeat.start()
 
     def update(self):
@@ -50,7 +50,7 @@ class GameHeartbeat:
         self.running = True
         while self.running:
             self.client.update()
-            self.clock.tick(30)
+            self.clock.tick(30) # TODO: вынести фпс куда нибудь
 
     def stop(self):
         self.running = False
@@ -73,19 +73,20 @@ class MainMenuState(GameState):
     def __init__(self, game):
         super().__init__(game)
         self.world = main_menu.load_menu()
-        self.camera = Camera()
 
     def update(self):
+        self.game.screen.fill((0, 0, 0))
         self.world.update()
-        self.game.renderer.render(self.camera, self.game.screen, self.world)
+        self.world.draw(self.game.screen)
+        pygame.display.flip()
         return self
 
-    def on_click(self, screen_pos):
-        game_pos = (screen_pos[0] + self.game.camera.x, screen_pos[1] - self.game.camera.y)
-        clicked_obj = self.world.get_obj(game_pos)
-        if clicked_obj is None:
+    def on_click(self, pos):
+        clicked_obj = self.world.get_obj(pos)
+        print(f"click={pos}")
+        if clicked_obj is None or type(clicked_obj) is not main_menu.Button:
             return
-        clicked_obj.click(screen_pos, game_pos)
+        clicked_obj.click(pos)
 
 
 class GameInProgressState(GameState):

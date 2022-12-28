@@ -1,15 +1,19 @@
 import pygame.sprite
 
+from camera import Camera
 from game_objects import GameObject
 from player import Human
 
 
 class World(pygame.sprite.Group):
 
-    def __init__(self):
+    def __init__(self, camera=None):
         super().__init__()
+        if camera is None:
+            camera = Camera()
         self.game_objects = dict()
         self.humans = []
+        self.camera = camera
 
     def get_obj(self, pos):
         for obj in self.game_objects.values():
@@ -31,15 +35,6 @@ class World(pygame.sprite.Group):
     def remove_human(self, human: Human):
         self.humans.remove(human)
         self.remove(human)
-
-    def render(self, screen, camera):
-        # TODO: добавить бекграунд
-        for sprite in self.sprites():
-            sprite.render(camera, screen)
-
-    def draw(self, surface):
-        # вызов этого метода эквивалентен рендеру с камерой по координатам 0, 0
-        raise NotImplementedError('use world.render(screen, camera)')
 
     def update(self):
         for obj in list(self.game_objects.values()):
