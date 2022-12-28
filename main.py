@@ -83,7 +83,6 @@ class MainMenuState(GameState):
 
     def on_click(self, pos):
         clicked_obj = self.world.get_obj(pos)
-        print(f"click={pos}")
         if clicked_obj is None or type(clicked_obj) is not main_menu.Button:
             return
         clicked_obj.click(pos)

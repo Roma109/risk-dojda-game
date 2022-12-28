@@ -22,7 +22,6 @@ class GameObject(pygame.sprite.Sprite):
         pass
 
     def is_inside(self, point):
-        print(f"is_inside {point}")
         return self.rect.collidepoint(point[0], point[1])
 
     def move(self, x, y):
