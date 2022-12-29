@@ -1,5 +1,5 @@
 from game_objects import Creature
-from renderer import Camera, PlayerFollowMode
+from camera import Camera, ObjectFollowMode
 
 
 class Human(Creature):
@@ -15,7 +15,7 @@ class Player(Human):
         if camera is None:
             camera = Camera()
         self.camera = camera
-        self.camera.mode = PlayerFollowMode(self)
+        self.camera.mode = ObjectFollowMode(self)
         self.speed = 10
         self.control = Control() # TODO: сделать управление
 

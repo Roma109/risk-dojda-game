@@ -1,3 +1,5 @@
+import random
+
 import pygame
 
 from game_objects import GameObject, FadingText
@@ -15,11 +17,13 @@ class Button(GameObject):
     def __init__(self, x, y, world, image):
         super().__init__(x, y, world, image)
 
-    def click(self, screen_pos, game_pos):
+    def click(self, pos):
         # screen_pos - положение курсора на экране, game_pos - положение курсора в игровом мире
         # тут просто для наглядности вывод текста сделал, в наследниках это надо переопределять
-        fading_text = FadingText(screen_pos[0] - 30, screen_pos[1] - 20, self.world, 'click!', (0, 255, 0))
+        fading_text = FadingText(pos[0] - 30, pos[1] - 20, self.world, 'click!', (0, 255, 0))
         self.world.add_object(fading_text)
+        self.rect.x = random.randint(100, 1000)
+        self.rect.y = random.randint(60, 600)
 
 
 def load_menu() -> MainMenu:

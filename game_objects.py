@@ -21,13 +21,8 @@ class GameObject(pygame.sprite.Sprite):
     def collide(self, obj):
         pass
 
-    def render(self, camera, screen):
-        if not self.active:
-            return
-        screen.blit(self.image, (self.rect.x - camera.x, self.rect.y + camera.y))
-
     def is_inside(self, point):
-        return self.image.get_bounding_rect().collidepoint(point[0], point[1])
+        return self.rect.collidepoint(point[0], point[1])
 
     def move(self, x, y):
         self.rect.x += x
@@ -63,12 +58,15 @@ class Creature(Entity):
 
 class FadingText(GameObject):
 
-    def __init__(self, x, y, world, text, color=(255, 255, 255), alpha=255):
-        self.font = pygame.font.SysFont('Comic Sans MS', 30)
+    def __init__(self, x, y, world, text, color=(255, 255, 255), alpha=255, font=None):
+        if font is None:
+            font = pygame.font.SysFont('Comic Sans MS', 30)
+        self.font = font
         self.text = text
         self.color = color
         self.alpha = alpha
         super().__init__(x, y, world, self.font.render(text, False, color))
+        self.image.set_alpha(self.alpha)
 
     def update(self):
         self.alpha -= 5
@@ -78,8 +76,3 @@ class FadingText(GameObject):
             return
         self.image = self.font.render(self.text, False, self.color)
         self.image.set_alpha(self.alpha)
-
-    def render(self, camera, screen):
-        if not self.active:
-            return
-        screen.blit(self.image, (self.rect.x, self.rect.y))
