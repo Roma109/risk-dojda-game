@@ -5,7 +5,7 @@ import pygame.sprite
 
 class GameObject(pygame.sprite.Sprite):
 
-    def __init__(self, x, y, world, image, active=True):
+    def __init__(self, x, y, world, image, priority=-1, active=True):
         super().__init__(world)
         self.world = world
         self.image = image
@@ -32,7 +32,7 @@ class GameObject(pygame.sprite.Sprite):
 class Entity(GameObject):
 
     def __init__(self, x, y, world, image):
-        super().__init__(x, y, world, image)
+        super().__init__(x, y, world, image, priority=0)
         self.vx = 0
         self.vy = 0
 
