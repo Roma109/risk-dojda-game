@@ -16,8 +16,9 @@ class Game:
         pygame.init()
         pygame.display.set_caption("Риск дождя")
         self.display_info = pygame.display.Info()
-        self.screen = pygame.display.set_mode((self.display_info.current_w,
-                                               self.display_info.current_h))
+        self.width = self.display_info.current_w
+        self.height = self.display_info.current_h
+        self.screen = pygame.display.set_mode((display_info.current_w, display_info.current_h))
         self.heartbeat.start()
 
     def update(self):
