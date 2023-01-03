@@ -15,7 +15,7 @@ class MainMenu(World):
 class Button(GameObject):
 
     def __init__(self, x, y, world, image):
-        super().__init__(x, y, world, image)
+        super().__init__(x, y, world, image, priority=1)
 
     def click(self, pos):
         # screen_pos - положение курсора на экране, game_pos - положение курсора в игровом мире
@@ -28,6 +28,9 @@ class Button(GameObject):
 
 def load_menu() -> MainMenu:
     new_game = pygame.image.load('assets/main_menu/new_game.png')
+    #TODO: получить размеры экрана 
+    background = pygame.transform.scale(pygame.image.load('assets/main_menu/background.jpg'),
+                                        (1920, 1080))
     # TODO: начать игру по нажатию на кнопку
     menu = MainMenu()
     menu.add_object(Button(10, 10, menu, new_game))
