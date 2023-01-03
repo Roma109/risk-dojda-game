@@ -17,7 +17,7 @@ class World(pygame.sprite.Group):
 
     def get_obj(self, pos):
         for obj in self.game_objects.values():
-            if obj.is_inside(pos):
+            if obj.is_inside(pos) and obj.priority >= 0:
                 return obj
 
     def add_object(self, obj: GameObject):
