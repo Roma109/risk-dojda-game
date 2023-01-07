@@ -78,29 +78,26 @@ class Tile(pygame.sprite.Sprite):
         return self.x, self.y
 
     def collide(self, entity):
-        print(f'self={self}, entity={entity}')
-        if entity.rect.collidepoint(self.rect.midtop) or \
-            entity.rect.collidepoint(self.rect.topleft) or \
-                entity.rect.collidepoint(self.rect.topright):
+        if isinstance(entity, Tile):
+            return
+        if entity.rect.collidepoint(self.rect.midtop):
             # обьект касается верхней стороны тайла
             if entity.vy < 0:
                 entity.vy = 0
+            entity.rect.bottom = self.rect.top
             entity.on_ground = True
-        if entity.rect.collidepoint(self.rect.topright) or \
-            entity.rect.collidepoint(self.rect.right) or \
-                entity.rect.collidepoint(self.rect.bottomright):
+        if entity.rect.collidepoint(self.rect.midright):
             # обьект касается правой стороны тайла
             if entity.vx > 0:
                 entity.vx = 0
-        if entity.rect.collidepoint(self.rect.topright) or \
-                entity.rect.collidepoint(self.rect.right) or \
-                entity.rect.collidepoint(self.rect.bottomright):
+            entity.rect.left = self.rect.right
+        if entity.rect.collidepoint(self.rect.midbottom):
             # нижней стороны
-            if entity.vy > 0:
+            if entity.vy < 0:
                 entity.vy = 0
-        if entity.rect.collidepoint(self.rect.topright) or \
-                 entity.rect.collidepoint(self.rect.right) or \
-                 entity.rect.collidepoint(self.rect.bottomright):
+            entity.rect.top = self.rect.bottom
+        if entity.rect.collidepoint(self.rect.midleft):
             # левой стороны
             if entity.vx < 0:
                 entity.vx = 0
+            entity.rect.right = self.rect.left

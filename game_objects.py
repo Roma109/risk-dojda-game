@@ -39,9 +39,12 @@ class Platform(GameObject):
         super().__init__(x, y, world, image)
 
     def collide(self, entity):
-        if entity.vy > 0:
-            entity.vy = 0
-            entity.on_ground = True
+        if entity.rect.collidepoint(self.rect.midtop) or \
+           entity.rect.collidepoint(self.rect.topright) or \
+           entity.rect.collidepoint(self.rect.topleft):
+            if entity.vy > 0:
+                entity.vy = 0
+                entity.on_ground = True
 
 
 class Entity(GameObject):
@@ -56,6 +59,11 @@ class Entity(GameObject):
         if not self.on_ground:
             self.vy += 9.8 / 30
         self.move(self.vx, self.vy)
+        self.vx *= 0.7
+        if abs(self.vx) <= 0.005:
+            self.vx = 0
+        if abs(self.vy) <= 0.005:
+            self.vy = 0
         self.on_ground = False
 
 
