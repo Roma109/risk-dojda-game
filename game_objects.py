@@ -12,6 +12,7 @@ class GameObject(pygame.sprite.Sprite):
         self.rect = image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.priority = priority
         self.active = active
         self.id = uuid.uuid4()
 
@@ -28,6 +29,20 @@ class GameObject(pygame.sprite.Sprite):
         self.rect.x += x
         self.rect.y += y
 
+    def collide(self, other):
+        pass
+
+
+class Platform(GameObject):
+
+    def __init__(self, x, y, world, image):
+        super().__init__(x, y, world, image)
+
+    def collide(self, entity):
+        if entity.vy > 0:
+            entity.vy = 0
+            entity.on_ground = True
+
 
 class Entity(GameObject):
 
@@ -35,9 +50,13 @@ class Entity(GameObject):
         super().__init__(x, y, world, image, priority=0)
         self.vx = 0
         self.vy = 0
+        self.on_ground = False
 
     def update(self):
+        if not self.on_ground:
+            self.vy += 9.8 / 30
         self.move(self.vx, self.vy)
+        self.on_ground = False
 
 
 class Creature(Entity):

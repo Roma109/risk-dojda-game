@@ -2,6 +2,7 @@ import random
 
 import pygame
 
+import main
 from game_objects import GameObject, FadingText
 from world import World
 
@@ -26,12 +27,23 @@ class Button(GameObject):
         self.rect.y = random.randint(60, 600)
 
 
-def load_menu() -> MainMenu:
+class StartButton(Button):
+
+    def __init__(self, x, y, world, image, game_state):
+        super().__init__(x, y, world, image)
+        self.game_state = game_state
+
+    def click(self, pos):
+        print("click!")
+        self.game_state.start = True
+
+
+def load_menu(game_state) -> MainMenu:
     new_game = pygame.image.load('assets/main_menu/new_game.png')
     #TODO: получить размеры экрана 
     background = pygame.transform.scale(pygame.image.load('assets/main_menu/background.jpg'),
                                         (1920, 1080))
     # TODO: начать игру по нажатию на кнопку
     menu = MainMenu()
-    menu.add_object(Button(10, 10, menu, new_game))
+    menu.add_object(StartButton(10, 10, menu, new_game, game_state))
     return menu
