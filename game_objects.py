@@ -19,9 +19,6 @@ class GameObject(pygame.sprite.Sprite):
     def update(self):
         pass
 
-    def collide(self, obj):
-        pass
-
     def is_inside(self, point):
         return self.rect.collidepoint(point[0], point[1])
 
@@ -32,19 +29,8 @@ class GameObject(pygame.sprite.Sprite):
     def collide(self, other):
         pass
 
-
-class Platform(GameObject):
-
-    def __init__(self, x, y, world, image):
-        super().__init__(x, y, world, image)
-
-    def collide(self, entity):
-        if entity.rect.collidepoint(self.rect.midtop) or \
-           entity.rect.collidepoint(self.rect.topright) or \
-           entity.rect.collidepoint(self.rect.topleft):
-            if entity.vy > 0:
-                entity.vy = 0
-                entity.on_ground = True
+    def get_pos(self):
+        return self.rect.x, self.rect.y
 
 
 class Entity(GameObject):
@@ -53,18 +39,19 @@ class Entity(GameObject):
         super().__init__(x, y, world, image, priority=0)
         self.vx = 0
         self.vy = 0
-        self.on_ground = False
+        self.on_ground = 0
 
     def update(self):
         if not self.on_ground:
-            self.vy += 9.8 / 30
+            self.vy += 0.3266667  # 9.8 / 30
         self.move(self.vx, self.vy)
         self.vx *= 0.7
         if abs(self.vx) <= 0.005:
             self.vx = 0
         if abs(self.vy) <= 0.005:
             self.vy = 0
-        self.on_ground = False
+        if self.on_ground:
+            self.on_ground -= 1
 
 
 class Creature(Entity):
@@ -73,14 +60,34 @@ class Creature(Entity):
         super().__init__(x, y, world, image)
         self.hp = hp
         self.maxhp = maxhp
+        self.direction = (0, 0)
+        self.speed = 10
+        self.jump_power = 10
+        self.invisibility_frames = 0
 
     def damage(self, amount):
+        if self.invisibility_frames:
+            return
+        self.invisibility_frames = 30
         self.hp = max(0, self.hp - amount)
         if self.hp == 0:
             self.kill()
 
     def kill(self):
+        self.vx = 0
+        self.vy = 0
+        self.active = False
         self.world.remove_object(self)
+
+    def update(self):
+        dx, dy = self.direction
+        if dx != 0:
+            self.vx = dx * self.speed
+        if dy != 0 and self.on_ground:
+            self.vy = dy * self.jump_power
+        if self.invisibility_frames:
+            self.invisibility_frames -= 1
+        super().update()
 
 
 class FadingText(GameObject):
