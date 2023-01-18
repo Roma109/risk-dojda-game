@@ -16,10 +16,7 @@ class GameObject(pygame.sprite.Sprite):
         self.active = active
         self.id = uuid.uuid4()
 
-    def update(self):
-        pass
-
-    def collide(self, obj):
+    def update(self, time):
         pass
 
     def is_inside(self, point):
@@ -39,12 +36,15 @@ class Platform(GameObject):
         super().__init__(x, y, world, image)
 
     def collide(self, entity):
-        if entity.rect.collidepoint(self.rect.midtop) or \
-           entity.rect.collidepoint(self.rect.topright) or \
-           entity.rect.collidepoint(self.rect.topleft):
-            if entity.vy > 0:
-                entity.vy = 0
-                entity.on_ground = True
+        height = entity.rect.clip(self.rect).height
+        if height / entity.vy <= 1:
+            if entity.rect.collidepoint(self.rect.midtop) or \
+               entity.rect.collidepoint(self.rect.topright) or \
+               entity.rect.collidepoint(self.rect.topleft):
+                if entity.direction[1] == 0 and entity.vy >= 0:
+                    entity.vy = 0
+                    entity.on_ground = 2
+                    entity.rect.bottom = self.rect.top
 
 
 class Entity(GameObject):
@@ -53,18 +53,19 @@ class Entity(GameObject):
         super().__init__(x, y, world, image, priority=0)
         self.vx = 0
         self.vy = 0
-        self.on_ground = False
+        self.on_ground = 0
 
-    def update(self):
+    def update(self, time):
         if not self.on_ground:
-            self.vy += 9.8 / 30
+            self.vy += 9.8 * time / 1000
         self.move(self.vx, self.vy)
         self.vx *= 0.7
         if abs(self.vx) <= 0.005:
             self.vx = 0
         if abs(self.vy) <= 0.005:
             self.vy = 0
-        self.on_ground = False
+        if self.on_ground:
+            self.on_ground -= 1
 
 
 class Creature(Entity):
@@ -73,6 +74,9 @@ class Creature(Entity):
         super().__init__(x, y, world, image)
         self.hp = hp
         self.maxhp = maxhp
+        self.direction = (0, 0)
+        self.speed = 10
+        self.jump_power = 10
 
     def damage(self, amount):
         self.hp = max(0, self.hp - amount)
@@ -81,6 +85,14 @@ class Creature(Entity):
 
     def kill(self):
         self.world.remove_object(self)
+
+    def update(self, time):
+        dx, dy = self.direction
+        if dx != 0:
+            self.vx = dx * self.speed
+        if dy != 0 and self.on_ground:
+            self.vy = dy * self.jump_power
+        super().update(time)
 
 
 class FadingText(GameObject):
@@ -95,8 +107,8 @@ class FadingText(GameObject):
         super().__init__(x, y, world, self.font.render(text, False, color))
         self.image.set_alpha(self.alpha)
 
-    def update(self):
-        self.alpha -= 5
+    def update(self, time):
+        self.alpha -= 150 * time / 1000
         if self.alpha <= 0:
             self.active = False
             self.world.remove_object(self)

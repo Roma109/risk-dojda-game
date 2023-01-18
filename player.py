@@ -1,7 +1,6 @@
 import pygame
 
 from game_objects import Creature
-from camera import Camera, ObjectFollowMode
 
 
 class Human(Creature):
@@ -43,7 +42,10 @@ class Control:  # управление игроком
 
 class Action:
 
-    def perform(self, player, button):
+    def start(self, player):
+        pass
+
+    def end(self, player):
         pass
 
 
@@ -52,7 +54,18 @@ class MoveAction(Action):
     def __init__(self, direction):  # direction - кортеж с направлениями по x и y - числами от 0 до 1
         self.direction = direction
 
-    def perform(self, player, button):
-        player.vx = self.direction[0] * player.speed
-        if player.on_ground:
-            player.vy = self.direction[1] * player.speed
+    def start(self, player):
+        dx, dy = player.direction
+        if self.direction[0]:
+            dx = self.direction[0]
+        if self.direction[1]:
+            dy = self.direction[1]
+        player.direction = (dx, dy)
+
+    def end(self, player):
+        dx, dy = player.direction
+        if dx == self.direction[0]:
+            dx = 0
+        if dy == self.direction[1]:
+            dy = 0
+        player.direction = (dx, dy)

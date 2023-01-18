@@ -39,10 +39,11 @@ class StartButton(Button):
 
 
 def load_menu(game_state) -> MainMenu:
+
     new_game = pygame.image.load('assets/main_menu/new_game.png')
     #TODO: получить размеры экрана 
     background = pygame.transform.scale(pygame.image.load('assets/main_menu/background.jpg'),
-                                        (1920, 1080))
+                                        (game_state.game.width, game_state.game.height))
     # TODO: начать игру по нажатию на кнопку
     menu = MainMenu()
     menu.add_object(StartButton(10, 10, menu, new_game, game_state))

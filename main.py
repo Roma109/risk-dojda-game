@@ -10,7 +10,7 @@ class Game:
 
     def __init__(self):
         # При инициализации клиента начинается игра
-        self.state = MainMenuState(self)
+        self.state = GameState(self)
         self.heartbeat = GameHeartbeat(self)
         self.screen = None
         self.display_info = None
@@ -19,19 +19,22 @@ class Game:
         pygame.init()
         pygame.display.set_caption("Риск дождя")
         self.display_info = pygame.display.Info()
-        print(self.display_info)
         self.width = self.display_info.current_w
         self.height = self.display_info.current_h
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.heartbeat.start()
 
-    def update(self):
-        self.state = self.state.update()
+    def update(self, time):
+        self.state = self.state.update(time)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.heartbeat.stop()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 self.on_click(event)
+            elif event.type == pygame.KEYDOWN:
+                self.state.button_press(event.key)
+            elif event.type == pygame.KEYUP:
+                self.state.button_release(event.key)
 
     def on_click(self, event):
         self.state.on_click(event.pos)
@@ -45,8 +48,9 @@ class Game:
 class GameHeartbeat:
 
     def __init__(self, game):
-        self.client = game
+        self.game = game
         self.clock = pygame.time.Clock()
+        self.fps = 30
         self.running = False
 
     def start(self):
@@ -54,8 +58,8 @@ class GameHeartbeat:
             raise RuntimeError('Heartbeat has already started!')
         self.running = True
         while self.running:
-            self.client.update()
-            self.clock.tick(30) # TODO: вынести фпс куда нибудь
+            self.game.update(self.clock.get_time())
+            self.clock.tick(self.fps) # TODO: вынести фпс куда нибудь
 
     def stop(self):
         self.running = False
@@ -66,10 +70,16 @@ class GameState:
     def __init__(self, game):
         self.game = game
 
-    def update(self):
+    def update(self, time):
         return MainMenuState(self.game)
 
     def on_click(self, screen_pos):
+        pass
+
+    def button_press(self, button):
+        pass
+
+    def button_release(self, button):
         pass
 
 
@@ -80,9 +90,9 @@ class MainMenuState(GameState):
         self.world = main_menu.load_menu(self)
         self.start = False
 
-    def update(self):
+    def update(self, time):
         self.game.screen.fill((0, 0, 0))
-        self.world.update()
+        self.world.update(time)
         self.world.draw(self.game.screen)
         pygame.display.flip()
         if self.start:
@@ -107,16 +117,22 @@ class GameInProgressState(GameState):
         self.level.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')
 
-    def update(self):
+    def update(self, time):
         self.game.screen.fill((0, 0, 0))
-        keys = pygame.key.get_pressed()
-        for button in self.player.control.buttons:
-            if keys[button]:
-                self.player.control.get_action(button).perform(self.player, button)
-        self.level.update()
+        self.level.update(time)
         self.level.world.draw(self.game.screen)
         pygame.display.flip()
         return self
+
+    def button_press(self, button):
+        for key in self.player.control.buttons:
+            if key == button:
+                self.player.control.get_action(key).start(self.player)
+
+    def button_release(self, button):
+        for key in self.player.control.buttons:
+            if key == button:
+                self.player.control.get_action(key).end(self.player)
 
 
 GAME = None
