@@ -106,9 +106,9 @@ class GameInProgressState(GameState):
 
     def __init__(self, game):
         super().__init__(game)
-        self.level = level.load_level()
+        self.level = level.generate_random_level(20, 20)
         self.player = Player(self.level.start_pos[0], self.level.start_pos[1],
-                    self.level.world, pygame.image.load('assets/player.jpg'))
+                             self.level.world, pygame.image.load('assets/player.jpg'))
         self.level.world.add_human(self.player)
         self.level.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')

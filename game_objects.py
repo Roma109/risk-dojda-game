@@ -29,6 +29,9 @@ class GameObject(pygame.sprite.Sprite):
     def collide(self, other):
         pass
 
+    def get_pos(self):
+        return self.rect.x, self.rect.y
+
 
 class Entity(GameObject):
 
@@ -60,13 +63,20 @@ class Creature(Entity):
         self.direction = (0, 0)
         self.speed = 10
         self.jump_power = 10
+        self.invisibility_frames = 0
 
     def damage(self, amount):
+        if self.invisibility_frames:
+            return
+        self.invisibility_frames = 30
         self.hp = max(0, self.hp - amount)
         if self.hp == 0:
             self.kill()
 
     def kill(self):
+        self.vx = 0
+        self.vy = 0
+        self.active = False
         self.world.remove_object(self)
 
     def update(self):
@@ -75,6 +85,8 @@ class Creature(Entity):
             self.vx = dx * self.speed
         if dy != 0 and self.on_ground:
             self.vy = dy * self.jump_power
+        if self.invisibility_frames:
+            self.invisibility_frames -= 1
         super().update()
 
 

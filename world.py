@@ -1,11 +1,20 @@
+import math
+
 import pygame.sprite
 
 from camera import Camera
 from game_objects import GameObject
 from player import Human
 
-
 TILE_SIZE = 32
+
+
+def distance_squared(pos1, pos2):
+    return (pos2[0] - pos1[0]) ** 2 + (pos2[1] - pos1[1]) ** 2
+
+
+def distance(pos1, pos2):
+    return math.sqrt(distance_squared(pos1, pos2))
 
 
 class World(pygame.sprite.Group):
@@ -46,6 +55,9 @@ class World(pygame.sprite.Group):
     def add_tile(self, tile):
         self.tiles[tile.get_pos()] = tile
         self.add(tile)
+
+    def get_tile(self, pos):
+        return self.tiles.get((pos[0] // TILE_SIZE, pos[1] // TILE_SIZE), None)
 
     def update(self):
         self.camera.tick()
@@ -105,10 +117,10 @@ class Platform(GameObject):
 
     def collide(self, entity):
         height = entity.rect.clip(self.rect).height
-        if height / entity.vy <= 1:
+        if height / (entity.vy if entity.vy != 0 else 1) <= 1:
             if entity.rect.collidepoint(self.rect.midtop) or \
-               entity.rect.collidepoint(self.rect.topright) or \
-               entity.rect.collidepoint(self.rect.topleft):
+                    entity.rect.collidepoint(self.rect.topright) or \
+                    entity.rect.collidepoint(self.rect.topleft):
                 if entity.direction[1] <= 0 <= entity.vy:
                     entity.vy = 0
                     entity.on_ground = 2
