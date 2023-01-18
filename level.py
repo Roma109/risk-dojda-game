@@ -5,6 +5,7 @@ import pygame
 import world
 from enemies import Enemy
 from world import World, Tile, Platform
+from game_objects import GameObject
 
 
 class Level:
@@ -41,14 +42,17 @@ def load_level():
         for x in range(len(row)):
             elem = row[x]
             if elem == " ":
-                continue
+                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
+                                      pygame.image.load('assets/level1/background_tile.png')))
             if elem == "B":
                 w.add_tile(Tile(w, x, y, pygame.image.load('assets/level1/tile.png')))
             elif elem == "-":
                 w.add_object(Platform(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
-                                      pygame.image.load('assets/level1/tile.png')))
+                                      pygame.image.load('assets/level1/platform.png')))
             elif elem == "P":
                 start_pos = (x * world.TILE_SIZE, y * world.TILE_SIZE)
+                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
+                                      pygame.image.load('assets/level1/player_start_point1.png')))
     return Level(w, start_pos)
 
 
