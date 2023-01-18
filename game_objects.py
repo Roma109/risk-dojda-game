@@ -16,7 +16,7 @@ class GameObject(pygame.sprite.Sprite):
         self.active = active
         self.id = uuid.uuid4()
 
-    def update(self, time):
+    def update(self):
         pass
 
     def is_inside(self, point):
@@ -30,23 +30,6 @@ class GameObject(pygame.sprite.Sprite):
         pass
 
 
-class Platform(GameObject):
-
-    def __init__(self, x, y, world, image):
-        super().__init__(x, y, world, image)
-
-    def collide(self, entity):
-        height = entity.rect.clip(self.rect).height
-        if height / entity.vy <= 1:
-            if entity.rect.collidepoint(self.rect.midtop) or \
-               entity.rect.collidepoint(self.rect.topright) or \
-               entity.rect.collidepoint(self.rect.topleft):
-                if entity.direction[1] == 0 and entity.vy >= 0:
-                    entity.vy = 0
-                    entity.on_ground = 2
-                    entity.rect.bottom = self.rect.top
-
-
 class Entity(GameObject):
 
     def __init__(self, x, y, world, image):
@@ -55,9 +38,9 @@ class Entity(GameObject):
         self.vy = 0
         self.on_ground = 0
 
-    def update(self, time):
+    def update(self):
         if not self.on_ground:
-            self.vy += 9.8 * time / 1000
+            self.vy += 0.3266667  # 9.8 / 30
         self.move(self.vx, self.vy)
         self.vx *= 0.7
         if abs(self.vx) <= 0.005:
@@ -86,13 +69,13 @@ class Creature(Entity):
     def kill(self):
         self.world.remove_object(self)
 
-    def update(self, time):
+    def update(self):
         dx, dy = self.direction
         if dx != 0:
             self.vx = dx * self.speed
         if dy != 0 and self.on_ground:
             self.vy = dy * self.jump_power
-        super().update(time)
+        super().update()
 
 
 class FadingText(GameObject):
@@ -107,8 +90,8 @@ class FadingText(GameObject):
         super().__init__(x, y, world, self.font.render(text, False, color))
         self.image.set_alpha(self.alpha)
 
-    def update(self, time):
-        self.alpha -= 150 * time / 1000
+    def update(self):
+        self.alpha -= 5
         if self.alpha <= 0:
             self.active = False
             self.world.remove_object(self)

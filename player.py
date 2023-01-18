@@ -17,9 +17,6 @@ class Player(Human):
         self.control = Control()
         self.control.save_defaults()
 
-    def on_button_press(self, button):
-        action = self.control.get_action(button)
-
 
 class Control:  # управление игроком
 

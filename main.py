@@ -9,7 +9,6 @@ from player import Player
 class Game:
 
     def __init__(self):
-        # При инициализации клиента начинается игра
         self.state = GameState(self)
         self.heartbeat = GameHeartbeat(self)
         self.screen = None
@@ -24,20 +23,17 @@ class Game:
         self.screen = pygame.display.set_mode((self.width, self.height))
         self.heartbeat.start()
 
-    def update(self, time):
-        self.state = self.state.update(time)
+    def update(self):
+        self.state = self.state.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.heartbeat.stop()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                self.on_click(event)
+                self.state.on_click(event.pos)
             elif event.type == pygame.KEYDOWN:
                 self.state.button_press(event.key)
             elif event.type == pygame.KEYUP:
                 self.state.button_release(event.key)
-
-    def on_click(self, event):
-        self.state.on_click(event.pos)
 
     def close(self):
         self.heartbeat.stop()
@@ -58,8 +54,8 @@ class GameHeartbeat:
             raise RuntimeError('Heartbeat has already started!')
         self.running = True
         while self.running:
-            self.game.update(self.clock.get_time())
-            self.clock.tick(self.fps) # TODO: вынести фпс куда нибудь
+            self.game.update()
+            self.clock.tick(self.fps)
 
     def stop(self):
         self.running = False
@@ -70,7 +66,7 @@ class GameState:
     def __init__(self, game):
         self.game = game
 
-    def update(self, time):
+    def update(self):
         return MainMenuState(self.game)
 
     def on_click(self, screen_pos):
@@ -90,9 +86,9 @@ class MainMenuState(GameState):
         self.world = main_menu.load_menu(self)
         self.start = False
 
-    def update(self, time):
+    def update(self):
         self.game.screen.fill((0, 0, 0))
-        self.world.update(time)
+        self.world.update()
         self.world.draw(self.game.screen)
         pygame.display.flip()
         if self.start:
@@ -117,9 +113,9 @@ class GameInProgressState(GameState):
         self.level.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')
 
-    def update(self, time):
+    def update(self):
         self.game.screen.fill((0, 0, 0))
-        self.level.update(time)
+        self.level.update()
         self.level.world.draw(self.game.screen)
         pygame.display.flip()
         return self
