@@ -1,6 +1,9 @@
 import pygame
 
+import level
 import main_menu
+from camera import ObjectFollowMode
+from player import Player
 
 
 class Game:
@@ -16,9 +19,10 @@ class Game:
         pygame.init()
         pygame.display.set_caption("Риск дождя")
         self.display_info = pygame.display.Info()
+        print(self.display_info)
         self.width = self.display_info.current_w
         self.height = self.display_info.current_h
-        self.screen = pygame.display.set_mode((display_info.current_w, display_info.current_h))
+        self.screen = pygame.display.set_mode((self.width, self.height))
         self.heartbeat.start()
 
     def update(self):
@@ -73,18 +77,21 @@ class MainMenuState(GameState):
 
     def __init__(self, game):
         super().__init__(game)
-        self.world = main_menu.load_menu()
+        self.world = main_menu.load_menu(self)
+        self.start = False
 
     def update(self):
         self.game.screen.fill((0, 0, 0))
         self.world.update()
         self.world.draw(self.game.screen)
         pygame.display.flip()
+        if self.start:
+            return GameInProgressState(self.game)
         return self
 
     def on_click(self, pos):
         clicked_obj = self.world.get_obj(pos)
-        if clicked_obj is None or type(clicked_obj) is not main_menu.Button:
+        if clicked_obj is None or not isinstance(clicked_obj, main_menu.Button):
             return
         clicked_obj.click(pos)
 
@@ -93,7 +100,23 @@ class GameInProgressState(GameState):
 
     def __init__(self, game):
         super().__init__(game)
-        # TODO: загрузить уровень
+        self.level = level.load_level()
+        self.player = Player(self.level.start_pos[0], self.level.start_pos[1],
+                    self.level.world, pygame.image.load('assets/player.jpg'))
+        self.level.world.add_human(self.player)
+        self.level.world.camera.set_mode(ObjectFollowMode(self.player))
+        print('game in progress!')
+
+    def update(self):
+        self.game.screen.fill((0, 0, 0))
+        keys = pygame.key.get_pressed()
+        for button in self.player.control.buttons:
+            if keys[button]:
+                self.player.control.get_action(button).perform(self.player, button)
+        self.level.update()
+        self.level.world.draw(self.game.screen)
+        pygame.display.flip()
+        return self
 
 
 GAME = None
