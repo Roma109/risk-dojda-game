@@ -12,9 +12,9 @@ class GameObject(pygame.sprite.Sprite):
         self.rect = image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.priority = priority
         self.active = active
         self.id = uuid.uuid4()
-        self.priority = priority
 
     def update(self):
         pass
@@ -22,20 +22,15 @@ class GameObject(pygame.sprite.Sprite):
     def collide(self, obj):
         pass
 
-    def render(self, camera, screen):
-        if not self.active:
-            return
-        screen.blit(self.image, (self.rect.x - camera.x, self.rect.y + camera.y))
-
     def is_inside(self, point):
-        return self.image.get_bounding_rect().collidepoint(point[0], point[1])
+        return self.rect.collidepoint(point[0], point[1])
 
     def move(self, x, y):
         self.rect.x += x
         self.rect.y += y
 
-    def click(self, *args):
-        print('input received')
+    def collide(self, other):
+        pass
 
 
 class Entity(GameObject):
@@ -44,9 +39,18 @@ class Entity(GameObject):
         super().__init__(x, y, world, image, priority=0)
         self.vx = 0
         self.vy = 0
+        self.on_ground = False
 
     def update(self):
+        if not self.on_ground:
+            self.vy += 9.8 / 30
         self.move(self.vx, self.vy)
+        self.vx *= 0.7
+        if abs(self.vx) <= 0.005:
+            self.vx = 0
+        if abs(self.vy) <= 0.005:
+            self.vy = 0
+        self.on_ground = False
 
 
 class Creature(Entity):
@@ -67,12 +71,15 @@ class Creature(Entity):
 
 class FadingText(GameObject):
 
-    def __init__(self, x, y, world, text, color=(255, 255, 255), alpha=255):
-        self.font = pygame.font.SysFont('Comic Sans MS', 30)
+    def __init__(self, x, y, world, text, color=(255, 255, 255), alpha=255, font=None):
+        if font is None:
+            font = pygame.font.SysFont('Comic Sans MS', 30)
+        self.font = font
         self.text = text
         self.color = color
         self.alpha = alpha
         super().__init__(x, y, world, self.font.render(text, False, color))
+        self.image.set_alpha(self.alpha)
 
     def update(self):
         self.alpha -= 5
@@ -82,8 +89,3 @@ class FadingText(GameObject):
             return
         self.image = self.font.render(self.text, False, self.color)
         self.image.set_alpha(self.alpha)
-
-    def render(self, camera, screen):
-        if not self.active:
-            return
-        screen.blit(self.image, (self.rect.x, self.rect.y))
