@@ -46,5 +46,6 @@ def load_menu(game_state) -> MainMenu:
                                         (game_state.game.width, game_state.game.height))
     # TODO: начать игру по нажатию на кнопку
     menu = MainMenu()
+    menu.add_object(GameObject(0, 0, menu, background))
     menu.add_object(StartButton(10, 10, menu, new_game, game_state))
     return menu
