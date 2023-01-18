@@ -1,8 +1,7 @@
 import pygame
 
 import world
-from game_objects import Platform
-from world import World, Tile
+from world import World, Tile, Platform
 
 
 class Level:
@@ -11,8 +10,8 @@ class Level:
         self.world = world
         self.start_pos = start_pos
 
-    def update(self, time):
-        self.world.update(time)
+    def update(self):
+        self.world.update()
 
 
 def load_level():

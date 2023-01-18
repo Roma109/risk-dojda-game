@@ -47,10 +47,10 @@ class World(pygame.sprite.Group):
         self.tiles[tile.get_pos()] = tile
         self.add(tile)
 
-    def update(self, time):
+    def update(self):
         self.camera.tick()
         for obj in list(self.game_objects.values()):
-            obj.update(time)
+            obj.update()
             self.camera.apply(obj)
         for tile in self.tiles.values():
             self.camera.apply(tile)
@@ -77,7 +77,7 @@ class Tile(GameObject):
             return
         if entity.rect.collidepoint(self.rect.midtop):
             # обьект касается верхней стороны тайла
-            if entity.vy < 0:
+            if entity.vy > 0:
                 entity.vy = 0
             entity.rect.bottom = self.rect.top
             entity.on_ground = 2
@@ -96,3 +96,20 @@ class Tile(GameObject):
             if entity.vx < 0:
                 entity.vx = 0
             entity.rect.right = self.rect.left
+
+
+class Platform(GameObject):
+
+    def __init__(self, x, y, world, image):
+        super().__init__(x, y, world, image)
+
+    def collide(self, entity):
+        height = entity.rect.clip(self.rect).height
+        if height / entity.vy <= 1:
+            if entity.rect.collidepoint(self.rect.midtop) or \
+               entity.rect.collidepoint(self.rect.topright) or \
+               entity.rect.collidepoint(self.rect.topleft):
+                if entity.direction[1] <= 0 <= entity.vy:
+                    entity.vy = 0
+                    entity.on_ground = 2
+                    entity.rect.bottom = self.rect.top
