@@ -11,8 +11,8 @@ class Level:
         self.world = world
         self.start_pos = start_pos
 
-    def update(self):
-        self.world.update()
+    def update(self, time):
+        self.world.update(time)
 
 
 def load_level():
