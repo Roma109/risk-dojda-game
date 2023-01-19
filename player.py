@@ -16,6 +16,7 @@ class Player(Human):
         self.speed = 10
         self.control = Control()
         self.control.save_defaults()
+        self.feet = (self.rect.bottomleft, self.rect.midbottom, self.rect.bottomright)
 
 
 class Control:  # управление игроком

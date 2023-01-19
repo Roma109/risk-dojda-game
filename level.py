@@ -4,8 +4,7 @@ import pygame
 
 import world
 from enemies import Enemy
-from world import World, Tile, Platform
-from game_objects import GameObject
+from world import World, Tile, Platform, GameObject
 
 
 class Level:
@@ -17,7 +16,8 @@ class Level:
 
     def update(self):
         if not self.enemies:
-            enemy = Enemy(64, 64, self.world, pygame.image.load("assets/player.jpg"), 10, 10)
+            enemy_sprite = pygame.transform.scale(pygame.image.load("assets/enemies/hitscan-wisp.png"), (32, 32))
+            enemy = Enemy(64, 64, self.world, enemy_sprite, 10, 10)
             self.world.add_object(enemy)
             self.enemies.append(enemy)
         self.world.update()
@@ -42,17 +42,17 @@ def load_level():
         for x in range(len(row)):
             elem = row[x]
             if elem == " ":
-                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
-                                      pygame.image.load('assets/level1/background_tile.png')))
+                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE,
+                                        w, pygame.image.load('assets/level1/background_tile.png')))
             if elem == "B":
-                w.add_tile(Tile(w, x, y, pygame.image.load('assets/level1/tile.png')))
+                w.add_tile(Tile(w, x, y, pygame.image.load('assets/level1/platform.png')))
             elif elem == "-":
                 w.add_object(Platform(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
                                       pygame.image.load('assets/level1/platform.png')))
             elif elem == "P":
                 start_pos = (x * world.TILE_SIZE, y * world.TILE_SIZE)
-                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
-                                      pygame.image.load('assets/level1/player_start_point1.png')))
+                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE,
+                                        w, pygame.image.load('assets/level1/player_start_point.png')))
     return Level(w, start_pos)
 
 
@@ -67,7 +67,7 @@ def generate_random_level(width, height):
                     platform_width = random.randint(1, 5)
                 if platform_width and w.get_obj((x * world.TILE_SIZE, (y - 1) * world.TILE_SIZE)) is None:
                     w.add_object(Platform(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
-                                          pygame.image.load('assets/level1/tile.png')))
+                                          pygame.image.load('assets/level1/platform.png')))
                     platform_width -= 1
                     if start_pos is None:
                         start_pos = (x, y - 1)
