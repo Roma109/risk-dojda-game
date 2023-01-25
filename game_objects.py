@@ -15,6 +15,8 @@ class GameObject(pygame.sprite.Sprite):
         self.priority = priority
         self.active = active
         self.id = uuid.uuid4()
+        self.vx = 0
+        self.vy = 0
 
     def update(self):
         pass
@@ -70,6 +72,7 @@ class Creature(Entity):
             return
         self.invisibility_frames = 30
         self.hp = max(0, self.hp - amount)
+        self.world.add_object(FadingText(self.rect.x, self.rect.y, self.world, str(amount), (255, 100, 100), 200))
         if self.hp == 0:
             self.kill()
 

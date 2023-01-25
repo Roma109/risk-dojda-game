@@ -33,7 +33,7 @@ class World(pygame.sprite.Group):
         for obj in self.game_objects.values():
             if obj.is_inside(pos):
                 objects.append(obj)
-        objects = list(filter(lambda x: x.priority >= 1, objects))
+        objects = list(filter(lambda x: x.priority >= 0, objects))
         return objects[0] if len(objects) != 0 else None
 
     def add_object(self, obj: GameObject):
