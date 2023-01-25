@@ -1,5 +1,6 @@
 import pygame
 
+import main
 from game_objects import Creature
 
 
@@ -30,6 +31,7 @@ class Control:  # управление игроком
         self.buttons[pygame.K_w] = MoveAction((0, -1))
         self.buttons[pygame.K_d] = MoveAction((1, 0))
         self.buttons[pygame.K_s] = MoveAction((0, 1))
+        # self.buttons[pygame.K_ESCAPE] = PauseAction()
 
     def get_action(self, button):
         return self.buttons[button]
@@ -67,3 +69,9 @@ class MoveAction(Action):
         if dy == self.direction[1]:
             dy = 0
         player.direction = (dx, dy)
+
+# оно не работает
+#class PauseAction(Action):
+#
+#    def start(self, player):
+#        main.get_game().state.next_state = lambda game, prev_state: main.GamePauseState(game, prev_state)
