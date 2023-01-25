@@ -10,18 +10,25 @@ class Game:
 
     def __init__(self):
         self.state = GameState(self)
-        self.heartbeat = GameHeartbeat(self)
         self.screen = None
         self.display_info = None
+        self.running = False
+        self.clock = pygame.time.Clock()
+        self.fps = 30
 
     def start(self):
+        if self.running:
+            raise RuntimeError('Game already started!')
         pygame.init()
         pygame.display.set_caption("Риск дождя")
         self.display_info = pygame.display.Info()
         self.width = self.display_info.current_w
         self.height = self.display_info.current_h
         self.screen = pygame.display.set_mode((self.width, self.height))
-        self.heartbeat.start()
+        self.running = True
+        while self.running:
+            self.update()
+            self.clock.tick(self.fps)
 
     def update(self):
         self.state = self.state.update()
@@ -36,29 +43,9 @@ class Game:
                 self.state.button_release(event.key)
 
     def close(self):
-        self.heartbeat.stop()
+        self.running = False
         pygame.display.quit()
         pygame.quit()
-
-
-class GameHeartbeat:
-
-    def __init__(self, game):
-        self.game = game
-        self.clock = pygame.time.Clock()
-        self.fps = 30
-        self.running = False
-
-    def start(self):
-        if self.running:
-            raise RuntimeError('Heartbeat has already started!')
-        self.running = True
-        while self.running:
-            self.game.update()
-            self.clock.tick(self.fps)
-
-    def stop(self):
-        self.running = False
 
 
 class GameState:
@@ -102,11 +89,34 @@ class MainMenuState(GameState):
         clicked_obj.click(pos)
 
 
+class OptionsState(GameState):
+
+    def __init__(self, game):
+        super().__init__(game)
+        self.world = main_menu.load_menu(self)
+        self.start = False
+
+    def update(self):
+        self.game.screen.fill((0, 0, 0))
+        self.world.update()
+        self.world.draw(self.game.screen)
+        pygame.display.flip()
+        if self.start:
+            return GameInProgressState(self.game)
+        return self
+
+    def on_click(self, pos):
+        clicked_obj = self.world.get_obj(pos)
+        if clicked_obj is None or not isinstance(clicked_obj, main_menu.Button):
+            return
+        clicked_obj.click(pos)
+
+
 class GameInProgressState(GameState):
 
     def __init__(self, game):
         super().__init__(game)
-        self.level = level.generate_random_level(20, 20)
+        self.level = level.load_level()
         self.player = Player(self.level.start_pos[0], self.level.start_pos[1],
                              self.level.world, pygame.image.load('assets/player.jpg'))
         self.level.world.add_human(self.player)

@@ -26,10 +26,10 @@ class Control:  # управление игроком
         self.buttons = dict()
 
     def save_defaults(self):
-        self.buttons[pygame.K_LEFT] = MoveAction((-1, 0))
-        self.buttons[pygame.K_UP] = MoveAction((0, -1))
-        self.buttons[pygame.K_RIGHT] = MoveAction((1, 0))
-        self.buttons[pygame.K_DOWN] = MoveAction((0, 1))
+        self.buttons[pygame.K_a] = MoveAction((-1, 0))
+        self.buttons[pygame.K_w] = MoveAction((0, -1))
+        self.buttons[pygame.K_d] = MoveAction((1, 0))
+        self.buttons[pygame.K_s] = MoveAction((0, 1))
 
     def get_action(self, button):
         return self.buttons[button]

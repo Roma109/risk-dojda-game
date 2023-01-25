@@ -3,7 +3,7 @@ import math
 import pygame.sprite
 
 from camera import Camera
-from game_objects import GameObject
+from game_objects import GameObject, Collideable
 from player import Human
 
 TILE_SIZE = 32
@@ -27,6 +27,7 @@ class World(pygame.sprite.Group):
         self.tiles = dict()
         self.humans = []
         self.camera = camera
+        self.collideables = []
 
     def get_obj(self, pos):
         objects = []
@@ -39,10 +40,14 @@ class World(pygame.sprite.Group):
     def add_object(self, obj: GameObject):
         self.game_objects[obj.id] = obj
         self.add(obj)
+        if isinstance(obj, Collideable):
+            self.collideables.append(obj)
 
     def remove_object(self, obj: GameObject):
         del self.game_objects[obj.id]
         self.remove(obj)
+        if isinstance(obj, Collideable):
+            self.collideables.remove(obj)
 
     def add_human(self, human: Human):
         self.humans.append(human)
@@ -55,6 +60,8 @@ class World(pygame.sprite.Group):
     def add_tile(self, tile):
         self.tiles[tile.get_pos()] = tile
         self.add(tile)
+        if isinstance(tile, Collideable):
+            self.collideables.append(tile)
 
     def get_tile(self, pos):
         return self.tiles.get((pos[0] // TILE_SIZE, pos[1] // TILE_SIZE), None)
@@ -66,17 +73,21 @@ class World(pygame.sprite.Group):
             self.camera.apply(obj)
         for tile in self.tiles.values():
             self.camera.apply(tile)
-        intersections = pygame.sprite.groupcollide(self, self, False, False)
-        for obj in intersections:
-            for other in intersections[obj]:
-                if obj == other:
-                    continue
-                obj.collide(other)
+        self.calculate_intersections()
+
+    def calculate_intersections(self):
+        for i in range(len(self.collideables) - 1):
+            for j in range(i + 1, len(self.collideables)):
+                first = self.collideables[i]
+                second = self.collideables[j]
+                if first.rect.colliderect(second.rect):
+                    first.collide(second)
+                    second.collide(first)
 
 
 class Tile(GameObject):
 
-    def __init__(self, world, x, y, image):
+    def __init__(self, x, y, world, image):
         super().__init__(x * TILE_SIZE, y * TILE_SIZE, world, image)
         self.x = x
         self.y = y
@@ -84,8 +95,14 @@ class Tile(GameObject):
     def get_pos(self):
         return self.x, self.y
 
+
+class CollideableTile(Tile, Collideable):
+
+    def __init__(self, x, y, world, image):
+        super().__init__(x, y, world, image)
+
     def collide(self, entity):
-        if isinstance(entity, Tile):
+        if isinstance(entity, CollideableTile):
             return
         if entity.rect.collidepoint(self.rect.midtop):
             # обьект касается верхней стороны тайла
@@ -110,7 +127,7 @@ class Tile(GameObject):
             entity.rect.right = self.rect.left
 
 
-class Platform(GameObject):
+class Platform(GameObject, Collideable):
 
     def __init__(self, x, y, world, image):
         super().__init__(x, y, world, image)

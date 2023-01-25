@@ -7,7 +7,11 @@ class ObjectFollowMode:
         self.obj = obj
 
     def tick(self, camera):
-        camera.update(self.obj)
+        if self.obj.active:
+            camera.update(self.obj)
+        else:
+            camera.dx = 0
+            camera.dy = 0
 
 
 class Camera:

@@ -19,7 +19,6 @@ class Button(GameObject):
         super().__init__(x, y, world, image, priority=1)
 
     def click(self, pos):
-        # screen_pos - положение курсора на экране, game_pos - положение курсора в игровом мире
         # тут просто для наглядности вывод текста сделал, в наследниках это надо переопределять
         fading_text = FadingText(pos[0] - 30, pos[1] - 20, self.world, 'click!', (0, 255, 0))
         self.world.add_object(fading_text)
@@ -39,13 +38,31 @@ class StartButton(Button):
 
 
 def load_menu(game_state) -> MainMenu:
-
+    pattern = ['----------------',
+               '----------------',
+               '----------------',
+               '--------S-------',
+               '----------------',
+               '----------------',
+               '----------------',
+               '----------------',
+               '----------------']  # 16x9
+    # S - кнопка "новая игра"
+    # L - кнопка "загрузить игру" WIP
+    # O - кнопка "настройки" WIP
+    # E - кнопка "выйти из игры" WIP
     new_game = pygame.image.load('assets/main_menu/new_game.png')
-    #TODO: получить размеры экрана 
+    screen_size = (game_state.game.width, game_state.game.height)
     background = pygame.transform.scale(pygame.image.load('assets/main_menu/background.jpg'),
-                                        (game_state.game.width, game_state.game.height))
-    # TODO: начать игру по нажатию на кнопку
+                                        screen_size)
     menu = MainMenu()
     menu.add_object(GameObject(0, 0, menu, background))
-    menu.add_object(StartButton(10, 10, menu, new_game, game_state))
+    for y in range(len(pattern)):
+        row = pattern[y]
+        for x in range(len(row)):
+            c = row[x]
+            if c == "S":
+                button = StartButton(100, 100, menu, new_game, game_state)
+                button.rect.center = screen_size[0] / len(row) * x, screen_size[1] / len(pattern) * y
+                menu.add_object(button)
     return menu

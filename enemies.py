@@ -18,7 +18,9 @@ class EntitySentient(Creature):
         if self.target is not None:
             vector_direction = pygame.math.Vector2(self.rect.x - self.target.rect.x,
                                                    self.rect.y - self.target.rect.y)
-            self.direction = (-vector_direction.x / vector_direction.length(), -vector_direction.y / vector_direction.length())
+            if vector_direction.length():
+                self.direction = (-vector_direction.x / vector_direction.length(),
+                                  -vector_direction.y / vector_direction.length())
         super().update()
 
     def set_target(self, target):

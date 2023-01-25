@@ -3,6 +3,11 @@ import uuid
 import pygame.sprite
 
 
+class Collideable:
+
+    def collide(self, other):
+        pass
+
 class GameObject(pygame.sprite.Sprite):
 
     def __init__(self, x, y, world, image, priority=-1, active=True):
@@ -28,14 +33,11 @@ class GameObject(pygame.sprite.Sprite):
         self.rect.x += x
         self.rect.y += y
 
-    def collide(self, other):
-        pass
-
     def get_pos(self):
         return self.rect.x, self.rect.y
 
 
-class Entity(GameObject):
+class Entity(GameObject, Collideable):
 
     def __init__(self, x, y, world, image):
         super().__init__(x, y, world, image, priority=0)
@@ -44,6 +46,8 @@ class Entity(GameObject):
         self.on_ground = 0
 
     def update(self):
+        if not self.active:
+            return
         if not self.on_ground:
             self.vy += 0.3266667  # 9.8 / 30
         self.move(self.vx, self.vy)
@@ -79,10 +83,13 @@ class Creature(Entity):
     def kill(self):
         self.vx = 0
         self.vy = 0
+        self.direction = (0, 0)
         self.active = False
         self.world.remove_object(self)
 
     def update(self):
+        if not self.active:
+            return
         dx, dy = self.direction
         if dx != 0:
             self.vx = dx * self.speed

@@ -4,7 +4,7 @@ import pygame
 
 import world
 from enemies import Enemy
-from world import World, Tile, Platform, GameObject
+from world import World, Tile, CollideableTile, Platform, GameObject
 
 
 class Level:
@@ -26,15 +26,14 @@ class Level:
                 self.enemies.remove(enemy)
 
 
-
 def load_level():
-    map = ['BBBBBBBBBB',
-           'B        B',
-           'B   - -  B',
-           'B P      B',
-           'B -   -  B',
-           'B        B',
-           'BBBBBBBBBB']
+    map = ['B                                                                                            B',
+           'B                                                                                            B',
+           'B                                       -------                                              B',
+           'B        ------                                          -----                               B',
+           'B   --                    ---------                ---                                       B',
+           'B                                           P                                                B',
+           'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB']
     w = World()
     start_pos = (0, 0)
     for y in range(len(map)):
@@ -42,10 +41,10 @@ def load_level():
         for x in range(len(row)):
             elem = row[x]
             if elem == " ":
-                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE,
-                                        w, pygame.image.load('assets/level1/background_tile.png')))
-            if elem == "B":
-                w.add_tile(Tile(w, x, y, pygame.image.load('assets/level1/platform.png')))
+                w.add_tile(Tile(x, y, w,
+                                pygame.image.load('assets/level1/background_tile.png')))
+            elif elem == "B":
+                w.add_tile(CollideableTile(x, y, w, pygame.image.load('assets/level1/platform.png')))
             elif elem == "-":
                 w.add_object(Platform(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
                                       pygame.image.load('assets/level1/platform.png')))
@@ -72,6 +71,6 @@ def generate_random_level(width, height):
                     if start_pos is None:
                         start_pos = (x, y - 1)
             else:
-                w.add_tile(Tile(w, x, y, pygame.image.load('assets/level1/tile.png')))
+                w.add_tile(CollideableTile(w, x, y, pygame.image.load('assets/level1/tile.png')))
     print("OBJECTS=" + str(len(w.game_objects) + len(w.tiles)))
     return Level(w, start_pos)
