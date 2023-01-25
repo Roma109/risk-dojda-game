@@ -28,6 +28,7 @@ class World(pygame.sprite.Group):
         self.humans = []
         self.camera = camera
         self.collideables = []
+        self.background = None
 
     def get_obj(self, pos):
         objects = []
@@ -83,6 +84,11 @@ class World(pygame.sprite.Group):
                 if first.rect.colliderect(second.rect):
                     first.collide(second)
                     second.collide(first)
+
+    def render(self, screen):
+        if self.background:
+            screen.blit(self.background.image, self.background.rect)
+        self.draw(screen)
 
 
 class Tile(GameObject):
@@ -142,3 +148,10 @@ class Platform(GameObject, Collideable):
                     entity.vy = 0
                     entity.on_ground = 2
                     entity.rect.bottom = self.rect.top
+
+
+class Background:
+
+    def __init__(self, image):
+        self.image = image
+        self.rect = image.get_rect()

@@ -8,6 +8,7 @@ class Collideable:
     def collide(self, other):
         pass
 
+
 class GameObject(pygame.sprite.Sprite):
 
     def __init__(self, x, y, world, image, priority=-1, active=True):

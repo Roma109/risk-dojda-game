@@ -4,23 +4,31 @@ import pygame
 
 import world
 from enemies import Enemy
+from player import Human
 from world import World, Tile, CollideableTile, Platform, GameObject
 
 
-class Level:
+class Level(World):
 
-    def __init__(self, world, start_pos):
-        self.world = world
+    def __init__(self, start_pos=None):
+        super().__init__()
+        if start_pos is None:
+            start_pos = (0, 0)
         self.start_pos = start_pos
         self.enemies = []
+
+    def add_human(self, human: Human):
+        super().add_human(human)
+        human.rect.x = self.start_pos[0]
+        human.rect.y = self.start_pos[1]
 
     def update(self):
         if not self.enemies:
             enemy_sprite = pygame.transform.scale(pygame.image.load("assets/enemies/hitscan-wisp.png"), (32, 32))
-            enemy = Enemy(64, 64, self.world, enemy_sprite, 10, 10)
-            self.world.add_object(enemy)
+            enemy = Enemy(64, 64, self, enemy_sprite, 10, 10)
+            self.add_object(enemy)
             self.enemies.append(enemy)
-        self.world.update()
+        super().update()
         for enemy in list(self.enemies):
             if not enemy.active:
                 self.enemies.remove(enemy)
@@ -34,8 +42,7 @@ def load_level():
            'B   --                    ---------                ---                                       B',
            'B                                           P                                                B',
            'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB']
-    w = World()
-    start_pos = (0, 0)
+    w = Level()
     for y in range(len(map)):
         row = map[y]
         for x in range(len(row)):
@@ -49,14 +56,14 @@ def load_level():
                 w.add_object(Platform(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
                                       pygame.image.load('assets/level1/platform.png')))
             elif elem == "P":
-                start_pos = (x * world.TILE_SIZE, y * world.TILE_SIZE)
+                w.start_pos = (x * world.TILE_SIZE, y * world.TILE_SIZE)
                 w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE,
                                         w, pygame.image.load('assets/level1/player_start_point.png')))
-    return Level(w, start_pos)
+    return w
 
 
 def generate_random_level(width, height):
-    w = World()
+    w = Level()
     start_pos = None
     for y in range(height):
         platform_width = 0
@@ -73,4 +80,4 @@ def generate_random_level(width, height):
             else:
                 w.add_tile(CollideableTile(w, x, y, pygame.image.load('assets/level1/tile.png')))
     print("OBJECTS=" + str(len(w.game_objects) + len(w.tiles)))
-    return Level(w, start_pos)
+    return w
