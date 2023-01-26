@@ -30,12 +30,19 @@ class World(pygame.sprite.Group):
         self.collideables = []
         self.background = None
 
+    def get(self, pos):
+        obj = self.get_obj(pos)
+        if obj is None:
+            return self.get_tile(pos)
+        else:
+            print(type(obj))
+            return obj
+
     def get_obj(self, pos):
         objects = []
         for obj in self.game_objects.values():
             if obj.is_inside(pos):
                 objects.append(obj)
-        objects = list(filter(lambda x: x.priority >= 0, objects))
         return objects[0] if len(objects) != 0 else None
 
     def add_object(self, obj: GameObject):
@@ -67,6 +74,23 @@ class World(pygame.sprite.Group):
     def get_tile(self, pos):
         return self.tiles.get((pos[0] // TILE_SIZE, pos[1] // TILE_SIZE), None)
 
+    def raytrace(self, origin, direction, step=5, max_distance=100, ignore=None):
+        if ignore is None:
+            ignore = []
+        step_x = direction[0] * step
+        step_y = direction[1] * step
+        pos = [origin[0], origin[1]]
+        # distance_squared дешевле чем distance
+        while distance_squared(origin, pos) < max_distance ** 2:
+            pos[0] += step_x
+            pos[1] += step_y
+            obj = self.get((int(pos[0]), int(pos[1])))
+            if isinstance(obj, Tile):
+                print(obj)
+            if obj is not None and obj not in ignore and isinstance(obj, Collideable):
+                return RayTraceResult(obj, isinstance(obj, Tile), not isinstance(obj, Tile), origin, (int(pos[0]), int(pos[1])))
+        return RayTraceResult(None, False, False, origin, (int(pos[0]), int(pos[1])))
+
     def update(self):
         self.camera.tick()
         for obj in list(self.game_objects.values()):
@@ -89,6 +113,16 @@ class World(pygame.sprite.Group):
         if self.background:
             screen.blit(self.background.image, self.background.rect)
         self.draw(screen)
+
+
+class RayTraceResult:
+
+    def __init__(self, obj, hit_tile, hit_object, origin, end):
+        self.obj = obj
+        self.hit_tile = hit_tile
+        self.hit_object = hit_object
+        self.origin = origin
+        self.end = end
 
 
 class Tile(GameObject):

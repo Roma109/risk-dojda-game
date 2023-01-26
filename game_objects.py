@@ -16,13 +16,10 @@ class GameObject(pygame.sprite.Sprite):
         self.world = world
         self.image = image
         self.rect = image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.center = x, y
         self.priority = priority
         self.active = active
         self.id = uuid.uuid4()
-        self.vx = 0
-        self.vy = 0
 
     def update(self):
         pass
@@ -35,7 +32,7 @@ class GameObject(pygame.sprite.Sprite):
         self.rect.y += y
 
     def get_pos(self):
-        return self.rect.x, self.rect.y
+        return self.rect.center
 
 
 class Entity(GameObject, Collideable):

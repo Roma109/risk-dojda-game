@@ -57,8 +57,8 @@ def load_level():
                                       pygame.image.load('assets/level1/platform.png')))
             elif elem == "P":
                 w.start_pos = (x * world.TILE_SIZE, y * world.TILE_SIZE)
-                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE,
-                                        w, pygame.image.load('assets/level1/player_start_point.png')))
+                w.add_object(Tile(x, y, w,
+                                  pygame.image.load('assets/level1/player_start_point.png')))
     return w
 
 

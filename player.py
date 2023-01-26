@@ -1,7 +1,43 @@
 import pygame
 
 import main
-from game_objects import Creature
+from game_objects import Creature, GameObject
+
+
+class Weapon:
+
+    def __init__(self):
+        self.range = 1000
+        self.damage = 10
+
+    def shoot(self, who, origin, direction):
+        print(who.world.get_tile((320, 160)))
+        ray_trace_result = who.world.raytrace(origin, direction, max_distance=self.range, ignore=[who])
+        who.world.add_object(WeaponTrace(origin, ray_trace_result.end, who.world, time=2, width=3, color=(100, 255, 100)))
+        if ray_trace_result.hit_object and isinstance(ray_trace_result.obj, Creature):
+            ray_trace_result.obj.damage(self.damage)
+
+
+class WeaponTrace(GameObject):
+
+    def __init__(self, origin, target, world, time=20, width=5, color=None):
+        super().__init__(origin[0], origin[1], world,
+                         pygame.Surface((1000, 1000)))
+        if color is None:
+            color = (255, 255, 255)
+        self.origin = origin
+        self.target = target
+        self.image.set_colorkey((0, 0, 0))
+        self.time = time
+        pygame.draw.line(self.image, color, (origin[0] - self.rect.x, origin[1] - self.rect.y),
+                         (target[0] - self.rect.x, target[1] - self.rect.y), width)
+
+    def update(self):
+        if self.time:
+            self.time -= 1
+        else:
+            self.active = False
+            self.world.remove_object(self)
 
 
 class Human(Creature):
@@ -18,6 +54,10 @@ class Player(Human):
         self.control = Control()
         self.control.save_defaults()
         self.feet = (self.rect.bottomleft, self.rect.midbottom, self.rect.bottomright)
+        self.weapon = Weapon()
+
+    def shoot(self, direction):
+        self.weapon.shoot(self, self.get_pos(), direction)
 
 
 class Control:  # управление игроком

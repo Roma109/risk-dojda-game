@@ -11,7 +11,6 @@ class ContinueButton(Button):
         self.game_state = game_state
 
     def click(self, pos):
-        self.game_state.prev_state.next_state = None
         self.game_state.game.state = self.game_state.prev_state
 
 

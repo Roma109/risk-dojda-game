@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 
 import game_over
@@ -55,6 +57,7 @@ class Game:
         self.running = False
         pygame.display.quit()
         pygame.quit()
+        sys.exit(0)
 
 
 class GameState:
@@ -149,6 +152,11 @@ class GameInProgressState(GameState):
             if key == button:
                 self.player.control.get_action(key).end(self.player)
 
+    def on_click(self, screen_pos):
+        direction = pygame.math.Vector2(screen_pos[0] - self.player.rect.x,
+                                        screen_pos[1] - self.player.rect.y).normalize()
+        self.player.shoot(direction)
+
 
 class GamePauseState(GameState):
 
@@ -164,6 +172,10 @@ class GamePauseState(GameState):
         self.world.render(self.game.screen)
         pygame.display.flip()
         return self
+
+    def button_press(self, button):
+        if button == pygame.K_ESCAPE:
+            self.game.state = self.prev_state
 
     def on_click(self, pos):
         clicked_obj = self.world.get_obj(pos)
