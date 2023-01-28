@@ -1,6 +1,7 @@
 import pygame
 
 import main
+import world
 from game_objects import Creature, GameObject
 
 
@@ -11,8 +12,9 @@ class Weapon:
         self.damage = 10
 
     def shoot(self, who, origin, direction):
-        print(who.world.get_tile((320, 160)))
-        ray_trace_result = who.world.raytrace(origin, direction, max_distance=self.range, ignore=[who])
+        ray_trace_result = who.world.raytrace(origin, direction,
+                                              max_distance=self.range, conditions=[lambda obj: obj != who,
+                                                                                   lambda obj: not isinstance(obj, world.Platform)])
         who.world.add_object(WeaponTrace(origin, ray_trace_result.end, who.world, time=2, width=3, color=(100, 255, 100)))
         if ray_trace_result.hit_object and isinstance(ray_trace_result.obj, Creature):
             ray_trace_result.obj.damage(self.damage)

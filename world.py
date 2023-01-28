@@ -35,7 +35,6 @@ class World(pygame.sprite.Group):
         if obj is None:
             return self.get_tile(pos)
         else:
-            print(type(obj))
             return obj
 
     def get_obj(self, pos):
@@ -72,11 +71,14 @@ class World(pygame.sprite.Group):
             self.collideables.append(tile)
 
     def get_tile(self, pos):
-        return self.tiles.get((pos[0] // TILE_SIZE, pos[1] // TILE_SIZE), None)
+        for tile in self.tiles.values():
+            if tile.is_inside(pos):
+                return tile
+        return None
 
-    def raytrace(self, origin, direction, step=5, max_distance=100, ignore=None):
-        if ignore is None:
-            ignore = []
+    def raytrace(self, origin, direction, step=5, max_distance=100, conditions=None):
+        if conditions is None:
+            conditions = []
         step_x = direction[0] * step
         step_y = direction[1] * step
         pos = [origin[0], origin[1]]
@@ -85,9 +87,14 @@ class World(pygame.sprite.Group):
             pos[0] += step_x
             pos[1] += step_y
             obj = self.get((int(pos[0]), int(pos[1])))
-            if isinstance(obj, Tile):
-                print(obj)
-            if obj is not None and obj not in ignore and isinstance(obj, Collideable):
+            if obj is None or not isinstance(obj, Collideable):
+                continue
+            fits = True
+            for condition in conditions:
+                if not condition(obj):
+                    fits = False
+                    break
+            if fits:
                 return RayTraceResult(obj, isinstance(obj, Tile), not isinstance(obj, Tile), origin, (int(pos[0]), int(pos[1])))
         return RayTraceResult(None, False, False, origin, (int(pos[0]), int(pos[1])))
 
