@@ -1,8 +1,10 @@
+import random
+
 import pygame.math
 
 import world
 from game_objects import Creature
-from player import Human
+from player import Human, Item
 
 
 class EntitySentient(Creature):
@@ -38,6 +40,11 @@ class Enemy(EntitySentient):
     def collide(self, other):
         if isinstance(other, Human):
             other.damage(self.contact_damage)
+
+    def kill(self):
+        super().kill()
+        if random.random() > 0.8:
+            self.world.add_object(Item(self.rect.centerx, self.rect.centery, self.world))
 
 
 class HumanTargetFinder:

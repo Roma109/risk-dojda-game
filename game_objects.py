@@ -1,5 +1,4 @@
 import uuid
-
 import pygame.sprite
 
 
@@ -37,8 +36,8 @@ class GameObject(pygame.sprite.Sprite):
 
 class Entity(GameObject, Collideable):
 
-    def __init__(self, x, y, world, image):
-        super().__init__(x, y, world, image, priority=0)
+    def __init__(self, x, y, world, image, priority=0):
+        super().__init__(x, y, world, image, priority)
         self.vx = 0
         self.vy = 0
         self.on_ground = 0
@@ -74,7 +73,7 @@ class Creature(Entity):
             return
         self.invisibility_frames = 30
         self.hp = max(0, self.hp - amount)
-        self.world.add_object(FadingText(self.rect.x, self.rect.y, self.world, str(amount), (255, 100, 100), 200))
+        self.world.add_object(FadingText(self.rect.x, self.rect.y, self.world, f'{amount:.2f}', (255, 100, 100), 200))
         if self.hp == 0:
             self.kill()
 
@@ -118,3 +117,5 @@ class FadingText(GameObject):
             return
         self.image = self.font.render(self.text, False, self.color)
         self.image.set_alpha(self.alpha)
+
+

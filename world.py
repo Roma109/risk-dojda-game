@@ -110,11 +110,14 @@ class World(pygame.sprite.Group):
     def calculate_intersections(self):
         for i in range(len(self.collideables) - 1):
             for j in range(i + 1, len(self.collideables)):
-                first = self.collideables[i]
-                second = self.collideables[j]
-                if first.rect.colliderect(second.rect):
-                    first.collide(second)
-                    second.collide(first)
+                try:
+                    first = self.collideables[i]
+                    second = self.collideables[j]
+                    if first.rect.colliderect(second.rect):
+                        first.collide(second)
+                        second.collide(first)
+                except IndexError as e:
+                    pass
 
     def render(self, screen):
         if self.background:

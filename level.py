@@ -51,7 +51,7 @@ def load_level():
                 w.add_tile(Tile(x, y, w,
                                 pygame.image.load('assets/level1/background_tile.png')))
             elif elem == "B":
-                w.add_tile(CollideableTile(x, y, w, pygame.image.load('assets/level1/platform.png')))
+                w.add_tile(CollideableTile(x, y, w, pygame.image.load('assets/level1/tile.png')))
             elif elem == "-":
                 w.add_object(Platform(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
                                       pygame.image.load('assets/level1/platform.png')))
