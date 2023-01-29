@@ -40,6 +40,13 @@ class Enemy(EntitySentient):
             other.damage(self.contact_damage)
 
 
+class FlyingEnemy(Enemy):
+
+    def __init__(self, x, y, world, image, hp, maxhp):
+        super().__init__(x, y, world, image, hp, maxhp)
+        self.gravity = False
+
+
 class HumanTargetFinder:
 
     def find_target(self, entity):
