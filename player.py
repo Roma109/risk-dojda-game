@@ -160,7 +160,7 @@ class Item(Entity):
             self.type = type
         image = pygame.image.load(ITEM_PROPERTIES[self.type][0])
         print('_')
-        super().__init__(x, y, world, image, priority=1)
+        super().__init__(x, y, world, image)
         self.vx = 0
         self.vy = 0
         self.on_ground = 0
