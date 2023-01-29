@@ -26,8 +26,8 @@ def load_menu(game_state) -> World:
                '--------E-------',
                '----------------']  # 16x9, можно любое разрешение
     # M - кнопка 'вернуться в главное меню'
-    new_game = pygame.image.load('assets/main_menu/new_game.png')
-    exit_icon = pygame.image.load("assets/main_menu/exit.png")
+    new_game = pygame.image.load('assets/main_menu/Menu Button.png')
+    exit_icon = pygame.image.load("assets/main_menu/Exit Button.png")
     screen_size = (game_state.game.width, game_state.game.height)
     menu = load_world(screen_size,
                       pattern,

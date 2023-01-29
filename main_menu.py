@@ -29,9 +29,9 @@ def load_menu(game_state) -> World:
     # L - кнопка "загрузить игру" WIP
     # O - кнопка "настройки"
     # E - кнопка "выйти из игры"
-    new_game = pygame.image.load('assets/main_menu/new_game.png')
-    options_icon = pygame.image.load('assets/main_menu/options.png')
-    exit_icon = pygame.image.load("assets/main_menu/exit.png")
+    new_game = pygame.image.load('assets/main_menu/New game Button.png')
+    options_icon = pygame.image.load('assets/main_menu/Options Button.png')
+    exit_icon = pygame.image.load("assets/main_menu/Exit Button.png")
     screen_size = (game_state.game.width, game_state.game.height)
     menu = load_world(screen_size,
                       pattern,

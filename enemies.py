@@ -47,6 +47,13 @@ class Enemy(EntitySentient):
             self.world.add_object(Item(self.rect.centerx, self.rect.centery, self.world))
 
 
+class FlyingEnemy(Enemy):
+
+    def __init__(self, x, y, world, image, hp, maxhp):
+        super().__init__(x, y, world, image, hp, maxhp)
+        self.gravity = False
+
+
 class HumanTargetFinder:
 
     def find_target(self, entity):
