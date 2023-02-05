@@ -26,7 +26,7 @@ def load_menu(game_state) -> World:
                '-------------B--',
                '----------------']  # 16x9, можно любое разрешение
     # B - кнопка 'назад'
-    back = pygame.image.load('assets/main_menu/back.png')
+    back = pygame.image.load('assets/main_menu/Back Button.png')
     screen_size = (game_state.game.width, game_state.game.height)
     menu = load_world(screen_size,
                       pattern,

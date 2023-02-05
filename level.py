@@ -2,19 +2,24 @@ import random
 
 import pygame
 
+import enemies
 import world
-from enemies import Enemy
 from player import Human
-from world import World, Tile, CollideableTile, Platform, GameObject
+from world import World, Tile, CollideableTile, Platform
 
 
 class Level(World):
 
-    def __init__(self, start_pos=None):
+    def __init__(self, start_pos=(0, 0), max_enemies=10, spawn_delay=90, enemy_types=None):
         super().__init__()
-        if start_pos is None:
-            start_pos = (0, 0)
+        if enemy_types is None:
+            enemy_types = [lambda x, y, w: enemies.FlyingEnemy(x, y, w,
+                                                         pygame.transform.scale(pygame.image.load("assets/enemies/hitscan-wisp.png"), (32, 32)), 10, 10)]
+        self.max_enemies = max_enemies
+        self.enemy_types = enemy_types
         self.start_pos = start_pos
+        self.spawn_delay = spawn_delay
+        self.spawn_time = 0
         self.enemies = []
 
     def add_human(self, human: Human):
@@ -23,11 +28,13 @@ class Level(World):
         human.rect.y = self.start_pos[1]
 
     def update(self):
-        if not self.enemies:
-            enemy_sprite = pygame.transform.scale(pygame.image.load("assets/enemies/hitscan-wisp.png"), (32, 32))
-            enemy = Enemy(64, 64, self, enemy_sprite, 10, 10)
-            self.add_object(enemy)
-            self.enemies.append(enemy)
+        if len(self.enemies) < self.max_enemies:
+            self.spawn_time += 1
+            if self.spawn_time >= self.spawn_delay:
+                self.spawn_time = 0
+                enemy = random.choice(self.enemy_types)(0, 64, self)
+                self.add_object(enemy)
+                self.enemies.append(enemy)
         super().update()
         for enemy in list(self.enemies):
             if not enemy.active:
@@ -51,14 +58,15 @@ def load_level():
                 w.add_tile(Tile(x, y, w,
                                 pygame.image.load('assets/level1/background_tile.png')))
             elif elem == "B":
-                w.add_tile(CollideableTile(x, y, w, pygame.image.load('assets/level1/platform.png')))
+                w.add_tile(CollideableTile(x, y, w, pygame.image.load('assets/level1/tile.png')))
             elif elem == "-":
                 w.add_object(Platform(x * world.TILE_SIZE, y * world.TILE_SIZE, w,
                                       pygame.image.load('assets/level1/platform.png')))
             elif elem == "P":
                 w.start_pos = (x * world.TILE_SIZE, y * world.TILE_SIZE)
-                w.add_object(GameObject(x * world.TILE_SIZE, y * world.TILE_SIZE,
-                                        w, pygame.image.load('assets/level1/player_start_point.png')))
+                w.add_object(Tile(x, y, w,
+                                  pygame.image.load('assets/level1/player_start_point.png')))
+    w.background = world.Background(pygame.image.load('assets/level1/background.png'))
     return w
 
 

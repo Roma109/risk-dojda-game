@@ -16,13 +16,10 @@ class GameObject(pygame.sprite.Sprite):
         self.world = world
         self.image = image
         self.rect = image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.center = x, y
         self.priority = priority
         self.active = active
         self.id = uuid.uuid4()
-        self.vx = 0
-        self.vy = 0
 
     def update(self):
         pass
@@ -35,21 +32,23 @@ class GameObject(pygame.sprite.Sprite):
         self.rect.y += y
 
     def get_pos(self):
-        return self.rect.x, self.rect.y
+        return self.rect.center
 
 
 class Entity(GameObject, Collideable):
 
-    def __init__(self, x, y, world, image):
+    def __init__(self, x, y, world, image, gravity=True, noclip=False):
         super().__init__(x, y, world, image, priority=0)
         self.vx = 0
         self.vy = 0
         self.on_ground = 0
+        self.gravity = gravity
+        self.noclip = noclip
 
     def update(self):
         if not self.active:
             return
-        if not self.on_ground:
+        if self.gravity and not self.noclip and not self.on_ground:
             self.vy += 0.3266667  # 9.8 / 30
         self.move(self.vx, self.vy)
         self.vx *= 0.7
@@ -57,7 +56,7 @@ class Entity(GameObject, Collideable):
             self.vx = 0
         if abs(self.vy) <= 0.005:
             self.vy = 0
-        if self.on_ground:
+        if self.gravity and self.on_ground:
             self.on_ground -= 1
 
 
@@ -94,7 +93,7 @@ class Creature(Entity):
         dx, dy = self.direction
         if dx != 0:
             self.vx = dx * self.speed
-        if dy != 0 and self.on_ground:
+        if dy != 0 and (self.on_ground or not self.gravity):
             self.vy = dy * self.jump_power
         if self.invisibility_frames:
             self.invisibility_frames -= 1
