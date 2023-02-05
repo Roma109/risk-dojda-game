@@ -1,6 +1,6 @@
 import pygame
 
-from menu import load_world, Button
+from menu import create_world, Button
 from world import World, Background
 
 
@@ -28,9 +28,10 @@ def load_menu(game_state) -> World:
     # B - кнопка 'назад'
     back = pygame.image.load('assets/main_menu/Back Button.png')
     screen_size = (game_state.game.width, game_state.game.height)
-    menu = load_world(screen_size,
-                      pattern,
-                      {'B': lambda x, y, w: BackButton(x, y, w, back, game_state)})
+    menu = create_world('options',
+                        screen_size,
+                        pattern,
+                        {'B': lambda x, y, w: BackButton(x, y, w, back, game_state)})
     background = pygame.Surface(screen_size)
     background.set_alpha(125)
     menu.background = Background(background)

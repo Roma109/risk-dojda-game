@@ -39,6 +39,12 @@ class Game:
             self.update()
             self.clock.tick(self.fps)
 
+    def load(self):
+        name = 'level1'
+        w = menu.load_level(name)
+        self.state = GameInProgressState(self, w, Player(self.width // 2, self.height // 2,
+                                                         w, pygame.image.load('assets/player.jpg')))
+
     def update(self):
         self.state = self.state.update()
         if not self.running:
@@ -122,12 +128,16 @@ class OptionsState(GameState):
 
 class GameInProgressState(GameState):
 
-    def __init__(self, game):
+    def __init__(self, game, w=None, player=None):
         super().__init__(game)
-        self.world = level.load_level()
-        self.player = Player(0, 0,
-                             self.world, pygame.image.load('assets/player.jpg'))
-        self.world.add_human(self.player)
+        if w is None:
+            w = level.load_level()
+        if player is None:
+            player = Player(0, 0,
+                            w, pygame.image.load('assets/player.jpg'))
+        self.world = w
+        self.player = player
+        self.world.set_player(self.player)
         self.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')
 
@@ -153,8 +163,8 @@ class GameInProgressState(GameState):
                 self.player.control.get_action(key).end(self.player)
 
     def on_click(self, screen_pos):
-        direction = pygame.math.Vector2(screen_pos[0] - self.player.rect.x,
-                                        screen_pos[1] - self.player.rect.y).normalize()
+        direction = pygame.math.Vector2(screen_pos[0] - self.player.rect.centerx + self.world.camera.x,
+                                        screen_pos[1] - self.player.rect.centery + self.world.camera.y).normalize()
         self.player.shoot(direction)
 
 

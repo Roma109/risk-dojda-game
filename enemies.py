@@ -9,8 +9,8 @@ from player import Human, Item
 
 class EntitySentient(Creature):
 
-    def __init__(self, x, y, w, image, hp, maxhp, target_finder):
-        super().__init__(x, y, w, image, hp, maxhp)
+    def __init__(self, x, y, w, image, key, hp, maxhp, target_finder):
+        super().__init__(x, y, w, image, key, hp, maxhp)
         self.target_finder = target_finder
         self.target = None
 
@@ -31,8 +31,8 @@ class EntitySentient(Creature):
 
 class Enemy(EntitySentient):
 
-    def __init__(self, x, y, world, image, hp, maxhp):
-        super().__init__(x, y, world, image, hp, maxhp, HumanTargetFinder())
+    def __init__(self, x, y, world, image, key, maxhp):
+        super().__init__(x, y, world, image, key, maxhp, maxhp, HumanTargetFinder())
         self.contact_damage = 2
         self.speed = 5
         self.jump_power = 10
@@ -47,16 +47,7 @@ class Enemy(EntitySentient):
             self.world.add_object(Item(self.rect.centerx, self.rect.centery, self.world))
 
 
-class FlyingEnemy(Enemy):
-
-    def __init__(self, x, y, world, image, hp, maxhp):
-        super().__init__(x, y, world, image, hp, maxhp)
-        self.gravity = False
-
-
 class HumanTargetFinder:
 
     def find_target(self, entity):
-        humans = list(filter(lambda x: world.distance_squared(entity.get_pos(), x.get_pos()),
-                             entity.world.humans))
-        return humans[0] if humans else None
+        return entity.world.player

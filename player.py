@@ -1,6 +1,5 @@
 import pygame
 import random
-import main
 import world
 from game_objects import Creature, GameObject, Entity, FadingText
 
@@ -34,7 +33,7 @@ class WeaponTrace(GameObject):
 
     def __init__(self, origin, target, world, time=20, width=5, color=None):
         super().__init__(origin[0], origin[1], world,
-                         pygame.Surface((1000, 1000)))
+                         pygame.Surface((1000, 1000)), None)
         if color is None:
             color = (255, 255, 255)
         self.origin = origin
@@ -55,7 +54,7 @@ class WeaponTrace(GameObject):
 class Human(Creature):
     # использовался бы в мультиплеере, может стоит выпилить
     def __init__(self, x, y, world, image):
-        super().__init__(x, y, world, image, 10, 10)
+        super().__init__(x, y, world, image, None, 10, 10)
 
 
 class Player(Human):
@@ -160,7 +159,7 @@ class Item(Entity):
             self.type = type
         image = pygame.image.load(ITEM_PROPERTIES[self.type][0])
         print('_')
-        super().__init__(x, y, world, image)
+        super().__init__(x, y, world, image, None)
         self.vx = 0
         self.vy = 0
         self.on_ground = 0
@@ -172,13 +171,3 @@ class Item(Entity):
             self.kill()
             self.world.add_object(FadingText(self.rect.center[0], self.rect.center[1],
                                              self.world, ITEM_PROPERTIES[self.type][1], ITEM_PROPERTIES[self.type][2]))
-
-    def kill(self):
-        self.active = False
-        self.world.remove_object(self)
-
-# оно не работает
-# class PauseAction(Action):
-#
-#    def start(self, player):
-#        main.get_game().state.next_state = lambda game, prev_state: main.GamePauseState(game, prev_state)
