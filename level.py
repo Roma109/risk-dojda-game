@@ -62,7 +62,7 @@ def load_level():
         options = json.load(options_file)
     with open('assets/level1/objects.json') as objects_file:
         objects_data = json.load(objects_file)
-    with open('assets/level1/layout.txt') as map_file:
+    with open('assets/level1/layout1.txt') as map_file:
         layout = list(map(lambda s: s.replace('\n', ''), map_file.readlines()))
     w = Level('level1')
     menu.fill_world(w, layout, objects_data, options)

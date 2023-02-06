@@ -43,7 +43,7 @@ class Game:
         name = 'level1'
         w = menu.load_level(name)
         self.state = GameInProgressState(self, w, Player(self.width // 2, self.height // 2,
-                                                         w, pygame.image.load('assets/player.jpg')))
+                                                         w, pygame.image.load('assets/player.png')))
 
     def update(self):
         self.state = self.state.update()
@@ -134,7 +134,7 @@ class GameInProgressState(GameState):
             w = level.load_level()
         if player is None:
             player = Player(0, 0,
-                            w, pygame.image.load('assets/player.jpg'))
+                            w, pygame.image.load('assets/player.png'))
         self.world = w
         self.player = player
         self.world.set_player(self.player)
