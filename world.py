@@ -2,9 +2,9 @@ import math
 
 import game_objects
 import object_types
+import player
 from camera import Camera
 from game_objects import GameObject, Collideable, Updateable
-from player import Human
 
 TILE_SIZE = 32
 
@@ -45,7 +45,7 @@ class World:
     def add(self, obj):
         if isinstance(obj, Tile):
             self.add_tile(obj)
-        elif isinstance(obj, Human):
+        elif isinstance(obj, player.Player):
             self.set_player(obj)
         else:
             self.add_object(obj)
