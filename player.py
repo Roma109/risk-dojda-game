@@ -39,6 +39,7 @@ class ChargedWeapon(Weapon):
         self.charge_amount = 0
         self.target = target
         self.owner = owner
+        self.color = (0, 0, 0)
         self.beam_start = self.owner.rect.centerx, self.owner.rect.centery
         self.beam_end = (self.target.rect.centerx, self.target.rect.centery)
         self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
@@ -47,13 +48,14 @@ class ChargedWeapon(Weapon):
     def charge(self):
         self.beam_start = self.owner.rect.centerx, self.owner.rect.centery
         self.beam_end = (self.target.rect.centerx, self.target.rect.centery)
-        if 40 <= self.charge_amount <= 50:
+        if self.charge_amount <= 50:
             self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
-                                              self.target.rect.centery - self.beam_start[1])
-            self.vector.normalize()
-        self.color = (min(self.charge_amount + 140, 255), max(255 - self.charge_amount, 0), 85)
-       # self.owner.world.add_object(WeaponTrace(self.beam_start, self.beam_end, self.owner.world, time=2, width=3,
-                                                #color=self.color))
+                                              self.target.rect.centery - self.beam_start[1]).normalize()
+        self.color = (min(self.charge_amount * 2 + 140, 255), max(255 - self.charge_amount * 2, 0), 85)
+        self.owner.world.add_object(WeaponTrace(self.beam_start, (self.beam_start[0] + self.vector.x * self.range,
+                                                                  self.beam_start[1] + self.vector.y * self.range),
+                                                self.owner.world, time=1, width=3,
+                                                color=self.color))
         self.charge_amount += 1
 
     def shoot_charged(self):
