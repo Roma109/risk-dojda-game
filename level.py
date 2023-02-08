@@ -4,6 +4,7 @@ import random
 import pygame
 
 import object_types
+import player
 import world
 
 
@@ -16,11 +17,6 @@ class Level(world.World):
         self.spawn_delay = spawn_delay
         self.spawn_time = 0
         self.enemies = []
-
-    def set_player(self, player):
-        super().set_player(player)
-        player.rect.x = self.start_pos[0]
-        player.rect.y = self.start_pos[1]
 
     def update(self):
         if len(self.enemies) < self.max_enemies:
@@ -45,6 +41,7 @@ class Level(world.World):
                     continue
                 save = obj.save()
                 data['objects'][str(obj.id)] = save
+            data['player'] = self.player.save()
             json.dump(data, save_file)
 
 
@@ -93,21 +90,30 @@ def fill_world(w, layout, objects_data, options, cached_types=None):
 # Пока что загружаются только level.Level
 # Посчитал ненужным загружать обычные миры
 def load_level(name):
-    with open('assets/level1/options.json') as options_file:
+    with open(f'assets/{name}/options.json') as options_file:
         options = json.load(options_file)
-    with open('assets/level1/objects.json') as objects_file:
+    with open(f'assets/{name}/objects.json') as objects_file:
         objects_data = json.load(objects_file)
-    with open('assets/level1/layout.txt') as layout_file:
+    with open(f'assets/{name}/layout.txt') as layout_file:
         layout = list(map(lambda s: s.replace('\n', ''), layout_file.readlines()))
     with open(f'{name}.json') as save_file:
         save_data = json.load(save_file)
     w = Level(name)
+    w.start_pos = options['spawnpoint']['x'], options['spawnpoint']['y']
     cached_types = load_types(objects_data)
     fill_world(w, layout, objects_data, options, cached_types)
     for id, data in save_data['objects'].items():
         data['id'] = id
         w.add_object(cached_types[data['key']].load(data, w))
     return w
+
+
+def load_player(name, w):
+    with open(f'{name}.json') as save_file:
+        save_data = json.load(save_file)['player']
+    p = player.Player(save_data['x'], save_data['y'], w, pygame.image.load('assets/player.png'))
+    p.apply(save_data)
+    return p
 
 
 # получает класс по названию, используется для загрузки типа обьекта
@@ -146,8 +152,9 @@ def create_level():
         options = json.load(options_file)
     with open('assets/level1/objects.json') as objects_file:
         objects_data = json.load(objects_file)
-    with open('assets/level1/layout1.txt') as map_file:
+    with open('assets/level1/layout.txt') as map_file:
         layout = list(map(lambda s: s.replace('\n', ''), map_file.readlines()))
     w = Level('level1')
+    w.start_pos = options['spawnpoint']['x'], options['spawnpoint']['y']
     fill_world(w, layout, objects_data, options)
     return w

@@ -40,6 +40,7 @@ class GameObject:
     def save(self):
         return {'x': self.rect.centerx,
                 'y': self.rect.centery,
+                'id': str(self.id),
                 'key': self.key}
 
     def apply(self, data):
@@ -130,11 +131,11 @@ class Creature(Entity):
         return data
 
     def apply(self, data):
-        super(Creature, self).apply(data)
+        super().apply(data)
         self.hp = data['hp']
 
 
-class FadingText(GameObject):
+class FadingText(GameObject, Updateable):
 
     def __init__(self, x, y, world, text, color=(255, 255, 255), alpha=255, font=None):
         if font is None:

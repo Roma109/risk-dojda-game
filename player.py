@@ -1,7 +1,7 @@
 import pygame
 import random
 import world
-from game_objects import Creature, GameObject, Entity, FadingText
+from game_objects import Creature, GameObject, Entity, FadingText, Updateable
 
 ITEM_PROPERTIES = {'damage': ('assets/items/damage.png', 'Damage up!', (200, 60, 60)),
                    'range': ('assets/items/range.png', 'Range up!', (60, 200, 60)),
@@ -59,7 +59,7 @@ class ChargedWeapon(Weapon):
         self.shoot(self.owner, self.beam_start, self.vector)
 
 
-class WeaponTrace(GameObject):
+class WeaponTrace(GameObject, Updateable):
 
     def __init__(self, origin, target, world, time=20, width=5, color=None):
         super().__init__(origin[0], origin[1], world,
@@ -106,10 +106,6 @@ class Player(Human):
     def shoot(self, direction):
         self.weapon.shoot(self, self.get_pos(), direction)
 
-    def kill(self):
-        super().kill()
-        self.world.camera.dx, self.world.camera.dy = 0, 0
-
     def get_item(self, type):
         if type == 'goal':
             self.progress += 1
@@ -129,6 +125,28 @@ class Player(Human):
                 self.speed = min(self.base_speed * self.speed_multiplier, 20)
             self.weapon = Weapon(round(self.base_damage * self.damage_multiplier),
                                  round(self.base_range * self.range_multiplier))
+
+    def recalc_stats(self):
+        self.speed = min(self.base_speed * self.speed_multiplier, 20)
+        self.weapon.damage = round(self.base_damage * self.damage_multiplier)
+        self.weapon.range = round(self.base_range * self.range_multiplier)
+
+    def save(self):
+        data = super().save()
+        data['progress'] = self.progress
+        data['damage'] = self.damage_multiplier
+        data['speed'] = self.speed_multiplier
+        data['range'] = self.range_multiplier
+        print(data)
+        return data
+
+    def apply(self, data):
+        print(data)
+        super().apply(data)
+        self.progress = data['progress']
+        self.damage_multiplier = data['damage']
+        self.speed_multiplier = data['speed']
+        self.range_multiplier = data['range']
 
 
 class Control:  # управление игроком

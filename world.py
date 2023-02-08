@@ -68,6 +68,8 @@ class World:
         del self.game_objects[obj.id]
         if isinstance(obj, Collideable):
             self.collideables.remove(obj)
+        if isinstance(obj, Updateable):
+            self.updateables.remove(obj)
 
     def set_player(self, player):
         self.add_object(player)
