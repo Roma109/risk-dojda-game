@@ -9,6 +9,12 @@ class Collideable:
         pass
 
 
+class Updateable:
+
+    def update(self):
+        pass
+
+
 class GameObject:
 
     def __init__(self, x, y, world, image, key, priority=-1, active=True):
@@ -20,9 +26,6 @@ class GameObject:
         self.priority = priority
         self.active = active
         self.id = uuid.uuid4()
-
-    def update(self):
-        pass
 
     def is_inside(self, point):
         return self.rect.collidepoint(point[0], point[1])
@@ -46,7 +49,7 @@ class GameObject:
         self.id = uuid.UUID(hex=data['id'])
 
     def is_saveable(self):
-        return self.key
+        return self.key is not None
 
     def draw(self, camera, screen):
         if not self.active:
@@ -54,7 +57,7 @@ class GameObject:
         screen.blit(self.image, (self.rect.x - camera.x, self.rect.y - camera.y))
 
 
-class Entity(GameObject, Collideable):
+class Entity(GameObject, Collideable, Updateable):
 
     def __init__(self, x, y, world, image, key, gravity=True, noclip=False):
         super().__init__(x, y, world, image, key, priority=0)

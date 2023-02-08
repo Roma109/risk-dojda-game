@@ -3,7 +3,7 @@ import math
 import game_objects
 import object_types
 from camera import Camera
-from game_objects import GameObject, Collideable
+from game_objects import GameObject, Collideable, Updateable
 from player import Human
 
 TILE_SIZE = 32
@@ -28,6 +28,7 @@ class World:
         self.player = None
         self.camera = camera
         self.collideables = []
+        self.updateables = []
         self.background = None
         self.types = object_types.ObjectTypes()
 
@@ -45,7 +46,7 @@ class World:
         if isinstance(obj, Tile):
             self.add_tile(obj)
         elif isinstance(obj, Human):
-            self.add_human(obj)
+            self.set_player(obj)
         else:
             self.add_object(obj)
 
@@ -60,6 +61,8 @@ class World:
         self.game_objects[obj.id] = obj
         if isinstance(obj, Collideable):
             self.collideables.append(obj)
+        if isinstance(obj, Updateable):
+            self.updateables.append(obj)
 
     def remove_object(self, obj: GameObject):
         del self.game_objects[obj.id]
@@ -74,6 +77,8 @@ class World:
         self.tiles[tile.get_pos()] = tile
         if isinstance(tile, Collideable):
             self.collideables.append(tile)
+        if isinstance(tile, Updateable):
+            self.updateables.append(tile)
 
     def get_tile(self, pos):
         for tile in self.tiles.values():
@@ -105,7 +110,7 @@ class World:
 
     def update(self):
         self.camera.tick()
-        for obj in list(self.game_objects.values()):
+        for obj in list(self.updateables):
             obj.update()
         self.calculate_intersections()
 
@@ -153,9 +158,6 @@ class Tile(GameObject):
 
     def get_pos(self):
         return self.x, self.y
-
-    def is_saveable(self):
-        return False
 
 
 class CollideableTile(Tile, Collideable):

@@ -131,7 +131,7 @@ class GameInProgressState(GameState):
     def __init__(self, game, w=None, player=None):
         super().__init__(game)
         if w is None:
-            w = level.load_level()
+            w = level.create_level()
         if player is None:
             player = Player(0, 0,
                             w, pygame.image.load('assets/player.jpg'))
