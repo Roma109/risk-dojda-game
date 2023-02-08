@@ -8,6 +8,7 @@ import main_menu
 import menu
 import options
 import pause
+import enemies
 from camera import ObjectFollowMode
 from player import Player
 
@@ -141,6 +142,7 @@ class GameInProgressState(GameState):
         self.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')
         print(self.world.game_objects)
+        self.world.add_object(enemies.BossEnemy(0, 0, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1))
 
     def update(self):
         self.game.screen.fill((0, 0, 0))

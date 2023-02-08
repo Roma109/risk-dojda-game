@@ -17,19 +17,20 @@ class Weapon:
         self.range = range
         self.damage = damage
 
-    def shoot(self, who, origin, direction):
+    def shoot(self, who, origin, direction, beam_width=3):
         ray_trace_result = who.world.raytrace(origin, direction,
                                               max_distance=self.range, conditions=[lambda obj: obj != who,
                                                                                    lambda obj: not isinstance(obj,
                                                                                                               world.Platform)])
         who.world.add_object(
-            WeaponTrace(origin, ray_trace_result.end, who.world, time=2, width=3, color=(max(10 * self.damage, 200),
+            WeaponTrace(origin, ray_trace_result.end, who.world, time=2, width=beam_width, color=(max(10 * self.damage, 200),
                                                                                          max(255 - 10 * self.damage,
                                                                                              80),
                                                                                          max(100 - 5 * self.damage,
                                                                                              80))))
         if ray_trace_result.hit_object and isinstance(ray_trace_result.obj, Creature):
             ray_trace_result.obj.damage(self.damage)
+        print(ray_trace_result.hit_tile)
 
 
 class ChargedWeapon(Weapon):
@@ -46,17 +47,18 @@ class ChargedWeapon(Weapon):
     def charge(self):
         self.beam_start = self.owner.rect.centerx, self.owner.rect.centery
         self.beam_end = (self.target.rect.centerx, self.target.rect.centery)
-        if self.charge_amount >= 85:
+        if 40 <= self.charge_amount <= 50:
             self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
                                               self.target.rect.centery - self.beam_start[1])
             self.vector.normalize()
         self.color = (min(self.charge_amount + 140, 255), max(255 - self.charge_amount, 0), 85)
-        self.owner.world.add_object(WeaponTrace(self.beam_start, self.beam_end, self.owner.world, time=2, width=12,
-                                                color=self.color))
+       # self.owner.world.add_object(WeaponTrace(self.beam_start, self.beam_end, self.owner.world, time=2, width=3,
+                                                #color=self.color))
         self.charge_amount += 1
 
     def shoot_charged(self):
-        self.shoot(self.owner, self.beam_start, self.vector)
+        self.shoot(self.owner, self.beam_start, self.vector, beam_width=7)
+        self.charge_amount = 0
 
 
 class WeaponTrace(GameObject):

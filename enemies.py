@@ -2,7 +2,7 @@ import random
 
 import pygame.math
 
-from game_objects import Creature, FadingText
+from game_objects import Creature, FadingText, Entity
 from player import Human, Item, ChargedWeapon
 from world import CollideableTile
 
@@ -52,15 +52,23 @@ class BossEnemy(Enemy):
         super().__init__(x, y, world, image, key, maxhp)
         self.contact_damage = 3
         self.speed = 3
+        self.jump_power = 6
         self.target_finder = HumanTargetFinder()
         self.target = self.target_finder.find_target(self)
         self.weapon = ChargedWeapon(3, 1000, self.target, self)
+        self.delta_x = 0
 
     def update(self):
-        if self.weapon.charge_amount <= 90:
+        if self.weapon.charge_amount <= 60:
             self.weapon.charge()
         else:
             self.weapon.shoot_charged()
+        if self.delta_x < -15:
+            self.direction = (1, 0)
+        if self.delta_x > 15:
+            self.direction = (-1, 0)
+        self.delta_x += self.direction[0] * self.speed
+        super().update()
 
     def kill(self):
         super().kill()
@@ -74,11 +82,12 @@ class HumanTargetFinder:
         return entity.world.player
 
 
-class SpawnerTile(CollideableTile):
+class SpawnerTile(CollideableTile, Entity):
 
     def __init__(self, x, y, world, image, key):
         super().__init__(x, y, world, image, key)
         self.counter = 0
+        self.gravity = False
 
     def collide(self, entity):
         super().collide(entity)
@@ -88,9 +97,9 @@ class SpawnerTile(CollideableTile):
 
     def initiate(self):
         self.counter += 1
-        if self.counter % 30 == 0:
-            FadingText(self.rect.x, self.rect.y, self.world, str(4 - self.counter // 30), (255, 50, 50))
-            if self.counter >= 90:
-                BossEnemy(self.rect.x, self.rect.y, self.world, pygame.image.load('assets/enemies/hitscan_wisp.png'), 1)
-                self.active = False
-                self.world.remove_object(self)
+        if self.counter % 10 == 0:
+            FadingText(self.rect.x, self.rect.y + 16, self.world, str(4 - self.counter // 10), (255, 50, 50))
+            if self.counter >= 30:
+                BossEnemy(self.rect.x, self.rect.y, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1)
+                # self.world.remove_object(self)
+                self.counter = -2000

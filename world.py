@@ -95,6 +95,7 @@ class World:
             pos[1] += step_y
             obj = self.get((int(pos[0]), int(pos[1])))
             if obj is None or not isinstance(obj, Collideable):
+                print(obj)
                 continue
             fits = True
             for condition in conditions:
