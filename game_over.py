@@ -1,18 +1,8 @@
 import pygame
 
 import main
-from menu import create_world, Button, ExitButton
+from menu import create_world, ExitButton, MainMenuButton
 from world import World, Background
-
-
-class MainMenuButton(Button):
-
-    def __init__(self, x, y, world, image, game_state):
-        super().__init__(x, y, world, image)
-        self.game_state = game_state
-
-    def click(self, pos):
-        self.game_state.game.state = main.MainMenuState(self.game_state.game)
 
 
 def load_menu(game_state) -> World:

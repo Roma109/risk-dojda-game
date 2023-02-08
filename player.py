@@ -6,8 +6,9 @@ from game_objects import Creature, GameObject, Entity, FadingText
 ITEM_PROPERTIES = {'damage': ('assets/items/damage.png', 'Damage up!', (200, 60, 60)),
                    'range': ('assets/items/range.png', 'Range up!', (60, 200, 60)),
                    'speed': ('assets/items/speed.png', 'Speed up!', (60, 60, 200)),
-                   'all_stats': ('assets/items/pearl.png', 'All stats up!!!', (255, 255, 255))}
-ITEM_TYPES = ['damage', 'speed', 'range', 'all_stats']
+                   'all_stats': ('assets/items/pearl.png', 'All stats up!!!', (255, 255, 255)),
+                   'goal': ('assets/items/fuel.png', 'Fuel obtained!', (255, 255, 255))}
+ITEM_TYPES = ['damage', 'speed', 'range', 'all_stats', 'goal']
 
 
 class Weapon:
@@ -23,10 +24,39 @@ class Weapon:
                                                                                                               world.Platform)])
         who.world.add_object(
             WeaponTrace(origin, ray_trace_result.end, who.world, time=2, width=3, color=(max(10 * self.damage, 200),
-                                                                                         max(255 - 10 * self.damage, 80),
-                                                                                         max(100 - 5 * self.damage, 80))))
+                                                                                         max(255 - 10 * self.damage,
+                                                                                             80),
+                                                                                         max(100 - 5 * self.damage,
+                                                                                             80))))
         if ray_trace_result.hit_object and isinstance(ray_trace_result.obj, Creature):
             ray_trace_result.obj.damage(self.damage)
+
+
+class ChargedWeapon(Weapon):
+    def __init__(self, damage, range, target, owner: Creature):
+        super().__init__(damage, range)
+        self.charge_amount = 0
+        self.target = target
+        self.owner = owner
+        self.beam_start = self.owner.rect.centerx, self.owner.rect.centery
+        self.beam_end = (self.target.rect.centerx, self.target.rect.centery)
+        self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
+                                          self.target.rect.centery - self.beam_start[1])
+
+    def charge(self):
+        self.beam_start = self.owner.rect.centerx, self.owner.rect.centery
+        self.beam_end = (self.target.rect.centerx, self.target.rect.centery)
+        if self.charge_amount >= 85:
+            self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
+                                              self.target.rect.centery - self.beam_start[1])
+            self.vector.normalize()
+        self.color = (min(self.charge_amount + 140, 255), max(255 - self.charge_amount, 0), 85)
+        self.owner.world.add_object(WeaponTrace(self.beam_start, self.beam_end, self.owner.world, time=2, width=12,
+                                                color=self.color))
+        self.charge_amount += 1
+
+    def shoot_charged(self):
+        self.shoot(self.owner, self.beam_start, self.vector)
 
 
 class WeaponTrace(GameObject):
@@ -71,6 +101,7 @@ class Player(Human):
         self.control.save_defaults()
         self.feet = (self.rect.bottomleft, self.rect.midbottom, self.rect.bottomright)
         self.weapon = Weapon(self.base_damage * self.damage_multiplier, self.base_range * self.range_multiplier)
+        self.progress = 0
 
     def shoot(self, direction):
         self.weapon.shoot(self, self.get_pos(), direction)
@@ -80,20 +111,22 @@ class Player(Human):
         self.world.camera.dx, self.world.camera.dy = 0, 0
 
     def get_item(self, type):
+        if type == 'goal':
+            self.progress += 1
         if type == 'speed':
             self.speed_multiplier += 0.2
-            self.speed = self.base_speed * self.speed_multiplier
+            self.speed = min(self.base_speed * self.speed_multiplier, 20)
         else:
             if type == 'damage':
                 self.damage_multiplier += 0.15
 
             if type == 'range':
-                self.range_multiplier += 0.4
+                self.range_multiplier += 0.2
             if type == 'all_stats':
                 self.range_multiplier *= 1.15
                 self.damage_multiplier *= 1.15
                 self.speed_multiplier *= 1.15
-                self.speed = self.base_speed * self.speed_multiplier
+                self.speed = min(self.base_speed * self.speed_multiplier, 20)
             self.weapon = Weapon(round(self.base_damage * self.damage_multiplier),
                                  round(self.base_range * self.range_multiplier))
 
@@ -154,7 +187,7 @@ class Item(Entity):
 
     def __init__(self, x, y, world, type=None):
         if type is None:
-            self.type = random.choices(ITEM_TYPES, weights=[25, 35, 30, 10], k=1)[0]
+            self.type = random.choices(ITEM_TYPES, weights=[25, 35, 30, 10, 0], k=1)[0]
         else:
             self.type = type
         image = pygame.image.load(ITEM_PROPERTIES[self.type][0])
@@ -166,8 +199,9 @@ class Item(Entity):
         self.direction = (0, 0)
 
     def collide(self, other):
-        if isinstance(other, Player):
+        if isinstance(other, Player) and self.active:
             other.get_item(self.type)
-            self.kill()
+            self.active = False
+            self.world.remove_object(self)
             self.world.add_object(FadingText(self.rect.center[0], self.rect.center[1],
                                              self.world, ITEM_PROPERTIES[self.type][1], ITEM_PROPERTIES[self.type][2]))

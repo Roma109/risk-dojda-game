@@ -140,6 +140,7 @@ class GameInProgressState(GameState):
         self.world.set_player(self.player)
         self.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')
+        print(self.world.game_objects)
 
     def update(self):
         self.game.screen.fill((0, 0, 0))

@@ -1,10 +1,12 @@
 import math
 
+import pygame
+
 import game_objects
 import object_types
 from camera import Camera
 from game_objects import GameObject, Collideable
-from player import Human
+
 
 TILE_SIZE = 32
 
@@ -44,8 +46,8 @@ class World:
     def add(self, obj):
         if isinstance(obj, Tile):
             self.add_tile(obj)
-        elif isinstance(obj, Human):
-            self.add_human(obj)
+        #elif isinstance(obj, Human):
+            #self.add_human(obj)
         else:
             self.add_object(obj)
 
@@ -123,7 +125,7 @@ class World:
                         first.collide(second)
                         second.collide(first)
                 except IndexError as e:
-                    pass
+                    print(e)
 
     def render(self, screen):
         if self.background:

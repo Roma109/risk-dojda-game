@@ -6,8 +6,8 @@
     "B": "bricks",
     "P": "platform",
     "R": "bg_bricks",
-    "G": "bg_bricks",
-    "S": "bg_bricks",
+    "G": "goal",
+    "S": "spawner",
     "#": "bg_bricks",
     "-": "platform"
   }
