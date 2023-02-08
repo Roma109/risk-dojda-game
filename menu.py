@@ -38,6 +38,16 @@ class OptionsButton(Button):
         self.game_state.game.state = main.OptionsState(self.game_state.game, self.game_state)
 
 
+class MainMenuButton(Button):
+
+    def __init__(self, x, y, world, image, game_state):
+        super().__init__(x, y, world, image)
+        self.game_state = game_state
+
+    def click(self, pos):
+        self.game_state.game.state = main.MainMenuState(self.game_state.game)
+
+
 def create_world(name, screen_size, pattern, elements) -> World:
     w = World(name)
     for y in range(len(pattern)):

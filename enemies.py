@@ -2,9 +2,9 @@ import random
 
 import pygame.math
 
-import world
-from game_objects import Creature
-from player import Human, Item
+from game_objects import Creature, FadingText
+from player import Human, Item, ChargedWeapon
+from world import CollideableTile
 
 
 class EntitySentient(Creature):
@@ -47,7 +47,50 @@ class Enemy(EntitySentient):
             self.world.add_object(Item(self.rect.centerx, self.rect.centery, self.world))
 
 
+class BossEnemy(Enemy):
+    def __init__(self, x, y, world, image, key, maxhp=200):
+        super().__init__(x, y, world, image, key, maxhp)
+        self.contact_damage = 3
+        self.speed = 3
+        self.target_finder = HumanTargetFinder()
+        self.target = self.target_finder.find_target(self)
+        self.weapon = ChargedWeapon(3, 1000, self.target, self)
+
+    def update(self):
+        if self.weapon.charge_amount <= 90:
+            self.weapon.charge()
+        else:
+            self.weapon.shoot_charged()
+
+    def kill(self):
+        super().kill()
+        self.world.add_object(Item(self.rect.centerx - 5, self.rect.centery, self.world, type='goal'))
+        self.world.add_object(Item(self.rect.centerx + 5, self.rect.centery, self.world, type='all_stats'))
+
+
 class HumanTargetFinder:
 
     def find_target(self, entity):
         return entity.world.player
+
+
+class SpawnerTile(CollideableTile):
+
+    def __init__(self, x, y, world, image, key):
+        super().__init__(x, y, world, image, key)
+        self.counter = 0
+
+    def collide(self, entity):
+        super().collide(entity)
+        if isinstance(entity, Human):
+            self.initiate()
+            BossEnemy(self.rect.x, self.rect.y, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1)
+
+    def initiate(self):
+        self.counter += 1
+        if self.counter % 30 == 0:
+            FadingText(self.rect.x, self.rect.y, self.world, str(4 - self.counter // 30), (255, 50, 50))
+            if self.counter >= 90:
+                BossEnemy(self.rect.x, self.rect.y, self.world, pygame.image.load('assets/enemies/hitscan_wisp.png'), 1)
+                self.active = False
+                self.world.remove_object(self)
