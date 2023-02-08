@@ -21,7 +21,8 @@ class Weapon:
         ray_trace_result = who.world.raytrace(origin, direction,
                                               max_distance=self.range, conditions=[lambda obj: obj != who,
                                                                                    lambda obj: not isinstance(obj,
-                                                                                                              world.Platform)])
+                                                                                                              world.Platform)],
+                                              except_classes=[WeaponTrace])
         who.world.add_object(
             WeaponTrace(origin, ray_trace_result.end, who.world, time=2, width=beam_width,
                         color=(min(10 * self.damage, 200),
@@ -52,7 +53,7 @@ class ChargedWeapon(Weapon):
             self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
                                               self.target.rect.centery - self.beam_start[1]).normalize()
         self.color = (min(self.charge_amount * 2 + 140, 255), max(255 - self.charge_amount * 2, 0), 85)
-        if self.charge_amount >= 15:
+        if 50 >= self.charge_amount >= 15:
             self.owner.world.add_object(WeaponTrace(self.beam_start, (self.beam_start[0] + self.vector.x * self.range,
                                                                       self.beam_start[1] + self.vector.y * self.range),
                                                     self.owner.world, time=1, width=2,

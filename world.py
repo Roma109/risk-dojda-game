@@ -36,9 +36,13 @@ class World:
     def register_type(self, object_type):
         self.types.register(object_type)
 
-    def get(self, pos):
-        obj = self.get_obj(pos)
-        if obj is None:
+    def get(self, pos, get_list=False, except_classes=[]):
+        obj = self.get_obj(pos, get_list=get_list)
+        for eclass in except_classes:
+            obj = list(filter(lambda x: not isinstance(x, eclass), obj))
+        if obj is None or not obj:
+            if get_list:
+                return [self.get_tile(pos)]
             return self.get_tile(pos)
         else:
             return obj
@@ -51,12 +55,15 @@ class World:
         else:
             self.add_object(obj)
 
-    def get_obj(self, pos):
+    def get_obj(self, pos, get_list=False):
         objects = []
         for obj in self.game_objects.values():
             if obj.is_inside(pos):
                 objects.append(obj)
-        return objects[0] if len(objects) != 0 else None
+        if not get_list:
+            return objects[0] if len(objects) != 0 else None
+        else:
+            return objects
 
     def add_object(self, obj: GameObject):
         self.game_objects[obj.id] = obj
@@ -83,19 +90,17 @@ class World:
                 return tile
         return None
 
-    def raytrace(self, origin, direction, step=5, max_distance=100, conditions=None):
+    def raytrace(self, origin, direction, step=5, max_distance=100, conditions=None, except_classes=None):
         if conditions is None:
             conditions = []
         step_x = direction[0] * step
         step_y = direction[1] * step
         pos = [origin[0], origin[1]]
-        print(step_x, step_y)
         # distance_squared дешевле чем distance
         while distance_squared(origin, pos) < max_distance ** 2:
             pos[0] += step_x
             pos[1] += step_y
-            obj = self.get((int(pos[0]), int(pos[1])))
-            print(obj)
+            obj = self.get((int(pos[0]), int(pos[1])), get_list=True, except_classes=except_classes)[0]
             if obj is None or not isinstance(obj, Collideable):
                 continue
             fits = True
