@@ -23,14 +23,14 @@ class Weapon:
                                                                                    lambda obj: not isinstance(obj,
                                                                                                               world.Platform)])
         who.world.add_object(
-            WeaponTrace(origin, ray_trace_result.end, who.world, time=2, width=beam_width, color=(max(10 * self.damage, 200),
-                                                                                         max(255 - 10 * self.damage,
-                                                                                             80),
-                                                                                         max(100 - 5 * self.damage,
-                                                                                             80))))
+            WeaponTrace(origin, ray_trace_result.end, who.world, time=2, width=beam_width,
+                        color=(min(10 * self.damage, 200),
+                               max(255 - 10 * self.damage,
+                                   80),
+                               max(100 - 5 * self.damage,
+                                   80))))
         if ray_trace_result.hit_object and isinstance(ray_trace_result.obj, Creature):
             ray_trace_result.obj.damage(self.damage)
-        print(ray_trace_result.hit_tile)
 
 
 class ChargedWeapon(Weapon):
@@ -52,14 +52,15 @@ class ChargedWeapon(Weapon):
             self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
                                               self.target.rect.centery - self.beam_start[1]).normalize()
         self.color = (min(self.charge_amount * 2 + 140, 255), max(255 - self.charge_amount * 2, 0), 85)
-        self.owner.world.add_object(WeaponTrace(self.beam_start, (self.beam_start[0] + self.vector.x * self.range,
-                                                                  self.beam_start[1] + self.vector.y * self.range),
-                                                self.owner.world, time=1, width=3,
-                                                color=self.color))
+        if self.charge_amount >= 15:
+            self.owner.world.add_object(WeaponTrace(self.beam_start, (self.beam_start[0] + self.vector.x * self.range,
+                                                                      self.beam_start[1] + self.vector.y * self.range),
+                                                    self.owner.world, time=1, width=2,
+                                                    color=self.color))
         self.charge_amount += 1
 
     def shoot_charged(self):
-        self.shoot(self.owner, self.beam_start, self.vector, beam_width=7)
+        self.shoot(self.owner, self.beam_start, self.vector, beam_width=10)
         self.charge_amount = 0
 
 
@@ -133,6 +134,8 @@ class Player(Human):
                 self.speed = min(self.base_speed * self.speed_multiplier, 20)
             self.weapon = Weapon(round(self.base_damage * self.damage_multiplier),
                                  round(self.base_range * self.range_multiplier))
+        self.maxhp += 1
+        self.hp = max(self.hp + 2, self.maxhp)
 
 
 class Control:  # управление игроком
@@ -207,5 +210,11 @@ class Item(Entity):
             other.get_item(self.type)
             self.active = False
             self.world.remove_object(self)
-            self.world.add_object(FadingText(self.rect.center[0], self.rect.center[1],
-                                             self.world, ITEM_PROPERTIES[self.type][1], ITEM_PROPERTIES[self.type][2]))
+            if not self.type == 'goal':
+                self.world.add_object(FadingText(self.rect.center[0], self.rect.center[1],
+                                                 self.world, ITEM_PROPERTIES[self.type][1],
+                                                 ITEM_PROPERTIES[self.type][2]))
+            else:
+                self.world.add_object(FadingText(self.rect.center[0], self.rect.center[1] - 32,
+                                                 self.world, ITEM_PROPERTIES[self.type][1],
+                                                 ITEM_PROPERTIES[self.type][2]))

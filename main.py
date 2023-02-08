@@ -142,7 +142,7 @@ class GameInProgressState(GameState):
         self.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')
         print(self.world.game_objects)
-        self.world.add_object(enemies.BossEnemy(0, 0, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1))
+        self.world.add_object(enemies.BossEnemy(0, 0, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1, maxhp = 50))
 
     def update(self):
         self.game.screen.fill((0, 0, 0))

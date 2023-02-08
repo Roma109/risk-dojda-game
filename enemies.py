@@ -2,7 +2,7 @@ import random
 
 import pygame.math
 
-from game_objects import Creature, FadingText, Entity
+from game_objects import Creature, FadingText
 from player import Human, Item, ChargedWeapon
 from world import CollideableTile
 
@@ -82,24 +82,31 @@ class HumanTargetFinder:
         return entity.world.player
 
 
-class SpawnerTile(CollideableTile, Entity):
+class SpawnerTile(CollideableTile):
 
     def __init__(self, x, y, world, image, key):
         super().__init__(x, y, world, image, key)
         self.counter = 0
         self.gravity = False
+        self.triggered = False
+        self.world.game_objects[self.id] = self
+        print('self in self.world.gameobjects', self in self.world.game_objects.values())
 
     def collide(self, entity):
         super().collide(entity)
-        if isinstance(entity, Human):
-            self.initiate()
+        if isinstance(entity, Human) and self.active:
+            self.triggered = True
             BossEnemy(self.rect.x, self.rect.y, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1)
 
-    def initiate(self):
-        self.counter += 1
-        if self.counter % 10 == 0:
-            FadingText(self.rect.x, self.rect.y + 16, self.world, str(4 - self.counter // 10), (255, 50, 50))
-            if self.counter >= 30:
-                BossEnemy(self.rect.x, self.rect.y, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1)
-                # self.world.remove_object(self)
-                self.counter = -2000
+    def update(self):
+        if self.triggered:
+            self.counter += 1
+            if self.counter % 20 == 0:
+                self.world.add_object(FadingText(self.rect.x, self.rect.y + 16,
+                                                 self.world, str(4 - self.counter // 20), (255, 50, 50)))
+                if self.counter >= 60:
+                    self.world.add_object(BossEnemy(self.rect.x, self.rect.y, self.world,
+                                                    pygame.image.load('assets/enemies/hitscan-wisp.png'), 1))
+                    # self.world.remove_object(self)
+                    self.triggered = False
+                    self.active = False

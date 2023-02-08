@@ -89,13 +89,14 @@ class World:
         step_x = direction[0] * step
         step_y = direction[1] * step
         pos = [origin[0], origin[1]]
+        print(step_x, step_y)
         # distance_squared дешевле чем distance
         while distance_squared(origin, pos) < max_distance ** 2:
             pos[0] += step_x
             pos[1] += step_y
             obj = self.get((int(pos[0]), int(pos[1])))
+            print(obj)
             if obj is None or not isinstance(obj, Collideable):
-                print(obj)
                 continue
             fits = True
             for condition in conditions:
