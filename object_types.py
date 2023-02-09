@@ -7,6 +7,7 @@ import player
 ENEMY = 0
 BOSS = 1
 TILE = 2
+ROCKET = 8
 SPAWNER = 11
 OTHER = 1000
 
@@ -67,6 +68,20 @@ class PlatformType(ObjectType):
         return world.Platform(x, y, w, self.image, self.key)
 
 
+class RocketType(ObjectType):
+
+    def __init__(self, key, data):
+        super().__init__(key, data, ROCKET)
+        self.image = pygame.image.load(data["image"])
+
+    def load(self, data, w):
+        x, y = data['x'], data['y']
+        return self.create(x, y, w)
+
+    def create(self, x, y, w):
+        return player.Rocket(x, y, w, self.image, self.key)
+
+
 class SpawnerType(ObjectType):
 
     def __init__(self, key, data):
@@ -83,20 +98,16 @@ class SpawnerType(ObjectType):
 
 class GoalType(ObjectType):
     def __init__(self, key, data):
-        super().__init__(key, data, TILE)
+        super().__init__(key, data, OTHER)
         self.image = pygame.image.load(data["image"])
-        self.collideable = data["collideable"]
 
     def load(self, data, w):
         x, y = data['x'], data['y']
-        tile = self.create(0, 0, w)
-        tile.rect.x = x
-        tile.rect.y = y
-        return tile
+        return self.create(x, y, w)
 
     def create(self, x, y, w):
-        w.add_object(player.Item(x, y, w, 'goal'))
-        return world.Tile(x, y, w, self.image, self.key),
+        w.add_object(world.Tile(x, y, w, self.image, self.key))
+        return player.Item(x, y, w, 'goal')
 
 
 class EnemyType(ObjectType):

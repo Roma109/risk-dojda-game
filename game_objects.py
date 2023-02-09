@@ -57,7 +57,7 @@ class GameObject:
 class Entity(GameObject, Collideable):
 
     def __init__(self, x, y, world, image, key, gravity=True, noclip=False):
-        super().__init__(x, y, world, image, key, priority=0)
+        super().__init__(x, y, world, image, key)
         self.vx = 0
         self.vy = 0
         self.on_ground = 0

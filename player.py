@@ -1,6 +1,7 @@
 import pygame
 import random
 import world
+import game_over
 from game_objects import Creature, GameObject, Entity, FadingText
 
 ITEM_PROPERTIES = {'damage': ('assets/items/damage.png', 'Damage up!', (200, 60, 60)),
@@ -219,3 +220,15 @@ class Item(Entity):
                 self.world.add_object(FadingText(self.rect.center[0], self.rect.center[1] - 32,
                                                  self.world, ITEM_PROPERTIES[self.type][1],
                                                  ITEM_PROPERTIES[self.type][2]))
+
+
+class Rocket(Entity):
+    def __init__(self, x, y, world, image, key, fuel_required=7):
+        super().__init__(x, y, world, image, key, gravity=False)
+
+    def collide(self, entity):
+        super().collide(entity)
+        if isinstance(entity, Player):
+            if entity.progress >= 7:
+                self.world.add_object(FadingText(self.rect.centerx, self.rect.centery, self.world, 'Ship Fueled. Taking off...'))
+                entity.active = False

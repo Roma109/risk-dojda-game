@@ -1,4 +1,4 @@
-B         R       G         B
+B         R         G       B
 BBBBBBBBBBBBBBBBBBBBBBBB    B
 B                         BBB
 B    S                    BGB

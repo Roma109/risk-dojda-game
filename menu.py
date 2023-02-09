@@ -18,7 +18,7 @@ class Button(GameObject):
 
     def click(self, pos):
         # тут просто для наглядности вывод текста сделал, в наследниках это надо переопределять
-        fading_text = FadingText(pos[0] - 30, pos[1] - 20, self.world, 'click!', (0, 255, 0))
+        fading_text = FadingText(pos[0] - 30, pos[1] - 20, self.world, 'ура!', (0, 255, 0))
         self.world.add_object(fading_text)
         self.rect.x = random.randint(100, 1000)
         self.rect.y = random.randint(60, 600)

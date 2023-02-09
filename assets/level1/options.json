@@ -5,7 +5,7 @@
     " ": "bg_bricks",
     "B": "bricks",
     "P": "platform",
-    "R": "bg_bricks",
+    "R": "rocket",
     "G": "goal",
     "S": "spawner",
     "#": "bg_bricks",

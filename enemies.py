@@ -43,7 +43,7 @@ class Enemy(EntitySentient):
 
     def kill(self):
         super().kill()
-        if random.random() > 0.8:
+        if random.random() < self.target.progress / 10 + 0.15:
             self.world.add_object(Item(self.rect.centerx, self.rect.centery, self.world))
 
 
@@ -86,6 +86,7 @@ class SpawnerTile(CollideableTile):
 
     def __init__(self, x, y, world, image, key):
         super().__init__(x, y, world, image, key)
+        self.difficulty = 0
         self.counter = 0
         self.gravity = False
         self.triggered = False
@@ -96,17 +97,19 @@ class SpawnerTile(CollideableTile):
         super().collide(entity)
         if isinstance(entity, Human) and self.active:
             self.triggered = True
-            BossEnemy(self.rect.x, self.rect.y, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1)
+            self.difficulty = entity.progress
 
     def update(self):
         if self.triggered:
             self.counter += 1
             if self.counter % 20 == 0:
-                self.world.add_object(FadingText(self.rect.x, self.rect.y + 16,
+                self.world.add_object(FadingText(self.rect.centerx, self.rect.centery - 16,
                                                  self.world, str(4 - self.counter // 20), (255, 50, 50)))
-                if self.counter >= 60:
-                    self.world.add_object(BossEnemy(self.rect.x, self.rect.y, self.world,
-                                                    pygame.image.load('assets/enemies/hitscan-wisp.png'), 1))
-                    # self.world.remove_object(self)
+                if self.counter >= 80:
+                    self.world.add_object(BossEnemy(self.rect.centerx, self.rect.centery-20, self.world,
+                                                    pygame.image.load('assets/enemies/hitscan-wisp.png'), 1,
+                                                    maxhp=50 + 30 * self.difficulty))
                     self.triggered = False
                     self.active = False
+                    self.world.add_object(CollideableTile(self.x, self.y, self.world,
+                                                          pygame.image.load('assets/level1/tile.png'), 2))

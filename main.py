@@ -142,7 +142,6 @@ class GameInProgressState(GameState):
         self.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')
         print(self.world.game_objects)
-        self.world.add_object(enemies.BossEnemy(0, 0, self.world, pygame.image.load('assets/enemies/hitscan-wisp.png'), 1, maxhp = 50))
 
     def update(self):
         self.game.screen.fill((0, 0, 0))
@@ -150,6 +149,8 @@ class GameInProgressState(GameState):
         self.world.render(self.game.screen)
         pygame.display.flip()
         if not self.player.active:
+            if self.player.progress >= 7:
+                return GameWonState(self.game, self.world)
             return GameOverState(self.game, self.world)
         return self
 
@@ -203,6 +204,28 @@ class GameOverState(GameState):
         super().__init__(game)
         self.background_world = world
         self.world = game_over.load_menu(self)
+
+    def update(self):
+        self.game.screen.fill((0, 0, 0))
+        self.world.update()
+        self.background_world.render(self.game.screen)
+        self.world.render(self.game.screen)
+        pygame.display.flip()
+        return self
+
+    def on_click(self, pos):
+        clicked_obj = self.world.get_obj(pos)
+        if clicked_obj is None or not isinstance(clicked_obj, menu.Button):
+            return
+        clicked_obj.click(pos)
+
+
+class GameWonState(GameState):
+
+    def __init__(self, game, world):
+        super().__init__(game)
+        self.background_world = world
+        self.world = game_over.load_score(self)
 
     def update(self):
         self.game.screen.fill((0, 0, 0))
