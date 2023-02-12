@@ -13,7 +13,7 @@ class ObjectFollowMode:
 
 
 class Camera:
-    # зададим начальный сдвиг камеры
+
     def __init__(self):
         display_info = pygame.display.Info()
         self.width = display_info.current_w

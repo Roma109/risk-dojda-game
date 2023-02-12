@@ -1,8 +1,8 @@
 import pygame
 import random
 import world
+from game_objects import Creature, GameObject, Entity, FadingText, Updateable
 import game_over
-from game_objects import Creature, GameObject, Entity, FadingText
 
 ITEM_PROPERTIES = {'damage': ('assets/items/damage.png', 'Damage up!', (200, 60, 60)),
                    'range': ('assets/items/range.png', 'Range up!', (60, 200, 60)),
@@ -53,11 +53,9 @@ class ChargedWeapon(Weapon):
         if self.charge_amount <= 50:
             self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
                                               self.target.rect.centery - self.beam_start[1]).normalize()
-        self.color = (min(self.charge_amount * 2 + 140, 255), max(255 - self.charge_amount * 2, 0), 85)
+        self.color = (min(self.charge_amount + 140, 255), max(255 - self.charge_amount, 0), 85)
         if 50 >= self.charge_amount >= 15:
-            self.owner.world.add_object(WeaponTrace(self.beam_start, (self.beam_start[0] + self.vector.x * self.range,
-                                                                      self.beam_start[1] + self.vector.y * self.range),
-                                                    self.owner.world, time=1, width=2,
+            self.owner.world.add_object(WeaponTrace(self.beam_start, self.beam_end, self.owner.world, time=2, width=12,
                                                     color=self.color))
         self.charge_amount += 1
 
@@ -66,7 +64,7 @@ class ChargedWeapon(Weapon):
         self.charge_amount = 0
 
 
-class WeaponTrace(GameObject):
+class WeaponTrace(GameObject, Updateable):
 
     def __init__(self, origin, target, world, time=20, width=5, color=None):
         super().__init__(origin[0], origin[1], world,
@@ -113,10 +111,6 @@ class Player(Human):
     def shoot(self, direction):
         self.weapon.shoot(self, self.get_pos(), direction)
 
-    def kill(self):
-        super().kill()
-        self.world.camera.dx, self.world.camera.dy = 0, 0
-
     def get_item(self, type):
         if type == 'goal':
             self.progress += 1
@@ -138,6 +132,28 @@ class Player(Human):
                                  round(self.base_range * self.range_multiplier))
         self.maxhp += 1
         self.hp = max(self.hp + 2, self.maxhp)
+
+    def recalc_stats(self):
+        self.speed = min(self.base_speed * self.speed_multiplier, 20)
+        self.weapon.damage = round(self.base_damage * self.damage_multiplier)
+        self.weapon.range = round(self.base_range * self.range_multiplier)
+
+    def save(self):
+        data = super().save()
+        data['progress'] = self.progress
+        data['damage'] = self.damage_multiplier
+        data['speed'] = self.speed_multiplier
+        data['range'] = self.range_multiplier
+        print(data)
+        return data
+
+    def apply(self, data):
+        print(data)
+        super().apply(data)
+        self.progress = data['progress']
+        self.damage_multiplier = data['damage']
+        self.speed_multiplier = data['speed']
+        self.range_multiplier = data['range']
 
 
 class Control:  # управление игроком

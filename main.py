@@ -42,9 +42,9 @@ class Game:
 
     def load(self):
         name = 'level1'
-        w = menu.load_level(name)
-        self.state = GameInProgressState(self, w, Player(self.width // 2, self.height // 2,
-                                                         w, pygame.image.load('assets/player.png')))
+        w = level.load_level(name)
+        p = level.load_player(name, w)
+        self.state = GameInProgressState(self, w, p)
 
     def update(self):
         self.state = self.state.update()
@@ -132,9 +132,9 @@ class GameInProgressState(GameState):
     def __init__(self, game, w=None, player=None):
         super().__init__(game)
         if w is None:
-            w = level.load_level()
+            w = level.create_level()
         if player is None:
-            player = Player(0, 0,
+            player = Player(w.start_pos[0], w.start_pos[1],
                             w, pygame.image.load('assets/player.png'))
         self.world = w
         self.player = player
