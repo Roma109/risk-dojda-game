@@ -76,7 +76,7 @@ def fill_world(w, layout, objects_data, options, cached_types=None, loading_save
             obj_y = y
             type = cached_types[obj_key]
             if loading_save and elem == 'S':
-                print('spawner_detected --> continuing without adding...')
+                print('story_detected --> continuing without adding...')
                 continue
             # нужно чтобы гарантировать что все тайлы выстроены в сеточку
             if not isinstance(type, object_types.TileType):
@@ -107,6 +107,8 @@ def load_level(name):
     fill_world(w, layout, objects_data, options, cached_types, loading_save=True)
     for id, data in save_data['objects'].items():
         print(id, '  #####  ', data )
+        if data['key'] == 'rocket':
+            continue
         data['id'] = id
         w.add_object(cached_types[data['key']].load(data, w))
     return w

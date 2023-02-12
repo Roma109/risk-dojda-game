@@ -113,8 +113,9 @@ class SpawnerTile(CollideableTile, Updateable):
                 if self.counter >= 80:
                     self.world.add_object(BossEnemy(self.rect.centerx, self.rect.centery - 20, self.world,
                                                     pygame.image.load('assets/enemies/hitscan-wisp.png'), "boss",
-                                                    maxhp=50 + 30 * self.difficulty**1.5))
+                                                    maxhp=round(50 + 30 * self.difficulty**1.5)))
                     self.triggered = False
                     self.active = False
                     self.world.add_object(CollideableTile(self.x, self.y, self.world,
-                                                          pygame.image.load('assets/level1/tile.png'), "spawner"))
+                                                          pygame.image.load('assets/level1/tile.png'), "bricks"))
+                    self.world.remove_object(self)
