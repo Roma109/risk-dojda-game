@@ -38,8 +38,8 @@ class GameObject:
         return self.rect.center
 
     def save(self):
-        return {'x': self.rect.centerx,
-                'y': self.rect.centery,
+        return {'x': self.rect.x,
+                'y': self.rect.y,
                 'id': str(self.id),
                 'key': self.key}
 
@@ -89,7 +89,7 @@ class Entity(GameObject, Collideable, Updateable):
 
 class Creature(Entity):
 
-    def __init__(self, x, y, world, image, key, hp, maxhp):
+    def __init__(self, x, y, world, image, key, hp, maxhp, inv_time=30):
         super().__init__(x, y, world, image, key)
         self.hp = hp
         self.maxhp = maxhp
@@ -97,11 +97,12 @@ class Creature(Entity):
         self.speed = 10
         self.jump_power = 10
         self.invisibility_frames = 0
+        self.inv_time = inv_time
 
     def damage(self, amount):
         if self.invisibility_frames:
             return
-        self.invisibility_frames = 30
+        self.invisibility_frames = self.inv_time
         self.hp = max(0, self.hp - amount)
         self.world.add_object(FadingText(self.rect.x, self.rect.y, self.world, str(amount), (255, 100, 100), 200))
         if self.hp == 0:

@@ -59,7 +59,7 @@ def load_types(objects_data):
     return cached_types
 
 
-def fill_world(w, layout, objects_data, options, cached_types=None):
+def fill_world(w, layout, objects_data, options, cached_types=None, loading_save=False):
     if cached_types is None:
         cached_types = load_types(objects_data)
     for type in cached_types.values():
@@ -75,6 +75,9 @@ def fill_world(w, layout, objects_data, options, cached_types=None):
             obj_x = x
             obj_y = y
             type = cached_types[obj_key]
+            if loading_save and elem == 'S':
+                print('spawner_detected --> continuing without adding...')
+                continue
             # нужно чтобы гарантировать что все тайлы выстроены в сеточку
             if not isinstance(type, object_types.TileType):
                 obj_x *= world.TILE_SIZE
@@ -101,8 +104,9 @@ def load_level(name):
     w = Level(name)
     w.start_pos = options['spawnpoint']['x'], options['spawnpoint']['y']
     cached_types = load_types(objects_data)
-    fill_world(w, layout, objects_data, options, cached_types)
+    fill_world(w, layout, objects_data, options, cached_types, loading_save=True)
     for id, data in save_data['objects'].items():
+        print(id, '  #####  ', data )
         data['id'] = id
         w.add_object(cached_types[data['key']].load(data, w))
     return w

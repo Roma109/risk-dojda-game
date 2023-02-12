@@ -2,9 +2,12 @@ import random
 
 import pygame.math
 
-from game_objects import Creature, FadingText
+from game_objects import Creature, FadingText, Updateable
 from player import Human, Item, ChargedWeapon
 from world import CollideableTile
+
+BOSS = 1
+TILE = 2
 
 
 class EntitySentient(Creature):
@@ -59,6 +62,8 @@ class BossEnemy(Enemy):
         self.delta_x = 0
 
     def update(self):
+        if self.weapon.target is None:
+            self.weapon.target = self.target_finder.find_target(self)
         if self.weapon.charge_amount <= 60:
             self.weapon.charge()
         else:
@@ -82,7 +87,7 @@ class HumanTargetFinder:
         return entity.world.player
 
 
-class SpawnerTile(CollideableTile):
+class SpawnerTile(CollideableTile, Updateable):
 
     def __init__(self, x, y, world, image, key):
         super().__init__(x, y, world, image, key)
@@ -106,10 +111,10 @@ class SpawnerTile(CollideableTile):
                 self.world.add_object(FadingText(self.rect.centerx, self.rect.centery - 16,
                                                  self.world, str(4 - self.counter // 20), (255, 50, 50)))
                 if self.counter >= 80:
-                    self.world.add_object(BossEnemy(self.rect.centerx, self.rect.centery-20, self.world,
-                                                    pygame.image.load('assets/enemies/hitscan-wisp.png'), 1,
-                                                    maxhp=50 + 30 * self.difficulty))
+                    self.world.add_object(BossEnemy(self.rect.centerx, self.rect.centery - 20, self.world,
+                                                    pygame.image.load('assets/enemies/hitscan-wisp.png'), "boss",
+                                                    maxhp=50 + 30 * self.difficulty**1.5))
                     self.triggered = False
                     self.active = False
                     self.world.add_object(CollideableTile(self.x, self.y, self.world,
-                                                          pygame.image.load('assets/level1/tile.png'), 2))
+                                                          pygame.image.load('assets/level1/tile.png'), "spawner"))

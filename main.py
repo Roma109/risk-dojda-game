@@ -116,7 +116,7 @@ class OptionsState(GameState):
     def update(self):
         self.game.screen.fill((0, 0, 0))
         self.world.update()
-        self.world.draw(self.game.screen)
+        self.world.render(self.game.screen)
         pygame.display.flip()
         return self
 

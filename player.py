@@ -42,10 +42,9 @@ class ChargedWeapon(Weapon):
         self.target = target
         self.owner = owner
         self.color = (0, 0, 0)
-        self.beam_start = self.owner.rect.centerx, self.owner.rect.centery
-        self.beam_end = (self.target.rect.centerx, self.target.rect.centery)
-        self.vector = pygame.math.Vector2(self.target.rect.centerx - self.beam_start[0],
-                                          self.target.rect.centery - self.beam_start[1])
+        self.beam_start = None
+        self.beam_end = None
+        self.vector = pygame.math.Vector2(0, 0)
 
     def charge(self):
         self.beam_start = self.owner.rect.centerx, self.owner.rect.centery
@@ -55,7 +54,7 @@ class ChargedWeapon(Weapon):
                                               self.target.rect.centery - self.beam_start[1]).normalize()
         self.color = (min(self.charge_amount + 140, 255), max(255 - self.charge_amount, 0), 85)
         if 50 >= self.charge_amount >= 15:
-            self.owner.world.add_object(WeaponTrace(self.beam_start, self.beam_end, self.owner.world, time=2, width=12,
+            self.owner.world.add_object(WeaponTrace(self.beam_start, self.beam_end, self.owner.world, time=0, width=2,
                                                     color=self.color))
         self.charge_amount += 1
 
@@ -94,7 +93,7 @@ class Human(Creature):
 
 class Player(Human):
 
-    def __init__(self, x, y, world, image):
+    def __init__(self, x, y, world, image, progress=0):
         super().__init__(x, y, world, image)
         self.base_speed = 10
         self.base_damage = 10
@@ -106,7 +105,7 @@ class Player(Human):
         self.control.save_defaults()
         self.feet = (self.rect.bottomleft, self.rect.midbottom, self.rect.bottomright)
         self.weapon = Weapon(self.base_damage * self.damage_multiplier, self.base_range * self.range_multiplier)
-        self.progress = 0
+        self.progress = progress
 
     def shoot(self, direction):
         self.weapon.shoot(self, self.get_pos(), direction)
