@@ -8,6 +8,7 @@ import main_menu
 import menu
 import options
 import pause
+import enemies
 from camera import ObjectFollowMode
 from player import Player
 
@@ -38,6 +39,12 @@ class Game:
         while self.running:
             self.update()
             self.clock.tick(self.fps)
+
+    def load(self):
+        name = 'level1'
+        w = menu.load_level(name)
+        self.state = GameInProgressState(self, w, Player(self.width // 2, self.height // 2,
+                                                         w, pygame.image.load('assets/player.png')))
 
     def update(self):
         self.state = self.state.update()
@@ -122,14 +129,19 @@ class OptionsState(GameState):
 
 class GameInProgressState(GameState):
 
-    def __init__(self, game):
+    def __init__(self, game, w=None, player=None):
         super().__init__(game)
-        self.world = level.load_level()
-        self.player = Player(0, 0,
-                             self.world, pygame.image.load('assets/player.jpg'))
-        self.world.add_human(self.player)
+        if w is None:
+            w = level.load_level()
+        if player is None:
+            player = Player(0, 0,
+                            w, pygame.image.load('assets/player.png'))
+        self.world = w
+        self.player = player
+        self.world.set_player(self.player)
         self.world.camera.set_mode(ObjectFollowMode(self.player))
         print('game in progress!')
+        print(self.world.game_objects)
 
     def update(self):
         self.game.screen.fill((0, 0, 0))
@@ -137,6 +149,8 @@ class GameInProgressState(GameState):
         self.world.render(self.game.screen)
         pygame.display.flip()
         if not self.player.active:
+            if self.player.progress >= 7:
+                return GameWonState(self.game, self.world)
             return GameOverState(self.game, self.world)
         return self
 
@@ -153,8 +167,8 @@ class GameInProgressState(GameState):
                 self.player.control.get_action(key).end(self.player)
 
     def on_click(self, screen_pos):
-        direction = pygame.math.Vector2(screen_pos[0] - self.player.rect.x,
-                                        screen_pos[1] - self.player.rect.y).normalize()
+        direction = pygame.math.Vector2(screen_pos[0] - self.player.rect.centerx + self.world.camera.x,
+                                        screen_pos[1] - self.player.rect.centery + self.world.camera.y).normalize()
         self.player.shoot(direction)
 
 
@@ -190,6 +204,28 @@ class GameOverState(GameState):
         super().__init__(game)
         self.background_world = world
         self.world = game_over.load_menu(self)
+
+    def update(self):
+        self.game.screen.fill((0, 0, 0))
+        self.world.update()
+        self.background_world.render(self.game.screen)
+        self.world.render(self.game.screen)
+        pygame.display.flip()
+        return self
+
+    def on_click(self, pos):
+        clicked_obj = self.world.get_obj(pos)
+        if clicked_obj is None or not isinstance(clicked_obj, menu.Button):
+            return
+        clicked_obj.click(pos)
+
+
+class GameWonState(GameState):
+
+    def __init__(self, game, world):
+        super().__init__(game)
+        self.background_world = world
+        self.world = game_over.load_score(self)
 
     def update(self):
         self.game.screen.fill((0, 0, 0))

@@ -9,14 +9,14 @@ class Collideable:
         pass
 
 
-class GameObject(pygame.sprite.Sprite):
+class GameObject:
 
-    def __init__(self, x, y, world, image, priority=-1, active=True):
-        super().__init__(world)
+    def __init__(self, x, y, world, image, key, priority=-1, active=True):
         self.world = world
         self.image = image
         self.rect = image.get_rect()
         self.rect.center = x, y
+        self.key = key
         self.priority = priority
         self.active = active
         self.id = uuid.uuid4()
@@ -34,11 +34,30 @@ class GameObject(pygame.sprite.Sprite):
     def get_pos(self):
         return self.rect.center
 
+    def save(self):
+        return {'x': self.rect.centerx,
+                'y': self.rect.centery,
+                'key': self.key}
+
+    def apply(self, data):
+        # предполагаем что обьект при создании уже находится на нужных координатах
+        #  self.rect.centerx = data['x']
+        #  self.rect.centery = data['y']
+        self.id = uuid.UUID(hex=data['id'])
+
+    def is_saveable(self):
+        return self.key
+
+    def draw(self, camera, screen):
+        if not self.active:
+            return
+        screen.blit(self.image, (self.rect.x - camera.x, self.rect.y - camera.y))
+
 
 class Entity(GameObject, Collideable):
 
-    def __init__(self, x, y, world, image, gravity=True, noclip=False):
-        super().__init__(x, y, world, image, priority=0)
+    def __init__(self, x, y, world, image, key, gravity=True, noclip=False):
+        super().__init__(x, y, world, image, key)
         self.vx = 0
         self.vy = 0
         self.on_ground = 0
@@ -59,11 +78,15 @@ class Entity(GameObject, Collideable):
         if self.gravity and self.on_ground:
             self.on_ground -= 1
 
+    def kill(self):
+        self.active = False
+        self.world.remove_object(self)
+
 
 class Creature(Entity):
 
-    def __init__(self, x, y, world, image, hp, maxhp):
-        super().__init__(x, y, world, image)
+    def __init__(self, x, y, world, image, key, hp, maxhp):
+        super().__init__(x, y, world, image, key)
         self.hp = hp
         self.maxhp = maxhp
         self.direction = (0, 0)
@@ -81,11 +104,10 @@ class Creature(Entity):
             self.kill()
 
     def kill(self):
+        super().kill()
         self.vx = 0
         self.vy = 0
         self.direction = (0, 0)
-        self.active = False
-        self.world.remove_object(self)
 
     def update(self):
         if not self.active:
@@ -99,6 +121,15 @@ class Creature(Entity):
             self.invisibility_frames -= 1
         super().update()
 
+    def save(self):
+        data = super().save()
+        data['hp'] = self.hp
+        return data
+
+    def apply(self, data):
+        super(Creature, self).apply(data)
+        self.hp = data['hp']
+
 
 class FadingText(GameObject):
 
@@ -109,7 +140,7 @@ class FadingText(GameObject):
         self.text = text
         self.color = color
         self.alpha = alpha
-        super().__init__(x, y, world, self.font.render(text, False, color))
+        super().__init__(x, y, world, self.font.render(text, False, color), None)
         self.image.set_alpha(self.alpha)
 
     def update(self):

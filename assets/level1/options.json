@@ -1,0 +1,14 @@
+{
+  "background": "assets/level1/background.png",
+  "spawnpoint": "#",
+  "layout": {
+    " ": "bg_bricks",
+    "B": "bricks",
+    "P": "platform",
+    "R": "rocket",
+    "G": "goal",
+    "S": "spawner",
+    "#": "bg_bricks",
+    "-": "platform"
+  }
+}
