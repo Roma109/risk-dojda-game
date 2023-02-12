@@ -1,9 +1,9 @@
 {
   "background": "assets/level1/background.png",
   "spawnpoint": {
-"x": 100,
-"y": 100
-},
+    "x": 100,
+    "y": 100
+  },
   "layout": {
     " ": "bg_bricks",
     "B": "bricks",

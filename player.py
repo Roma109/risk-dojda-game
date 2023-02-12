@@ -215,12 +215,7 @@ class Item(Entity):
         else:
             self.type = type
         image = pygame.image.load(ITEM_PROPERTIES[self.type][0])
-        print('_')
         super().__init__(x, y, world, image, None)
-        self.vx = 0
-        self.vy = 0
-        self.on_ground = 0
-        self.direction = (0, 0)
 
     def collide(self, other):
         if isinstance(other, Player) and self.active:

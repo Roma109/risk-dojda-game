@@ -214,7 +214,7 @@ class Platform(GameObject, Collideable):
             if entity.rect.collidepoint(self.rect.midtop) or \
                     entity.rect.collidepoint(self.rect.topright) or \
                     entity.rect.collidepoint(self.rect.topleft):
-                if entity.direction[1] <= 0 <= entity.vy:
+                if isinstance(entity, game_objects.Creature) and entity.direction[1] <= 0 <= entity.vy:
                     entity.vy = 0
                     entity.on_ground = 2
                     entity.rect.bottom = self.rect.top

@@ -89,13 +89,13 @@ def fill_world(w, layout, objects_data, options, cached_types=None, loading_save
 
 
 # Чтобы загрузить мир нужно чтобы существовал файл "название мира.json"
-# И в папке "assets/название мира" существовали файлы "objects.json", "options.json"
+# И в папке "assets/название мира" существовали файлы "object_types.json", "options.json"
 # Пока что загружаются только level.Level
 # Посчитал ненужным загружать обычные миры
 def load_level(name):
     with open(f'assets/{name}/options.json') as options_file:
         options = json.load(options_file)
-    with open(f'assets/{name}/objects.json') as objects_file:
+    with open(f'assets/{name}/object_types.json') as objects_file:
         objects_data = json.load(objects_file)
     with open(f'assets/{name}/layout.txt') as layout_file:
         layout = list(map(lambda s: s.replace('\n', ''), layout_file.readlines()))
@@ -154,11 +154,17 @@ def get_class(name):
 def create_level():
     with open('assets/level1/options.json') as options_file:
         options = json.load(options_file)
-    with open('assets/level1/objects.json') as objects_file:
+    with open('assets/level1/object_types.json') as objects_file:
         objects_data = json.load(objects_file)
     with open('assets/level1/layout.txt') as map_file:
         layout = list(map(lambda s: s.replace('\n', ''), map_file.readlines()))
+    with open('assets/level1/objects.json') as objects_file:
+        objects = json.load(objects_file)
     w = Level('level1')
     w.start_pos = options['spawnpoint']['x'], options['spawnpoint']['y']
     fill_world(w, layout, objects_data, options)
+    for obj in objects['objects']:
+        provider = w.types.get(obj['type'])
+        x, y = obj['x'], obj['y']
+        w.add(provider.create(x, y, w))
     return w

@@ -1,0 +1,48 @@
+{
+  "objects": {
+    "platform": {
+      "provider": "object_types.PlatformType",
+      "image": "assets/level1/platform.png"
+    },
+    "wisp": {
+      "provider": "object_types.EnemyType",
+      "image": "assets/enemies/contact-damage-guy.png",
+      "maxhp": 10,
+      "damage": 2,
+      "gravity": false
+    },
+    "goal": {
+      "provider": "object_types.GoalType",
+      "image": "assets/level1/background_tile.png"
+    },
+    "boss": {
+      "provider": "object_types.BossType",
+      "image": "assets/enemies/hitscan-wisp.png",
+      "maxhp": 200,
+      "damage": 3,
+      "gravity": false
+    },
+    "rocket": {
+      "provider": "object_types.RocketType",
+      "image": "assets/rocket.png",
+      "collideable": true
+    }
+  },
+  "tiles": {
+    "bricks": {
+      "image": "assets/level1/tile.png",
+      "collideable": true,
+      "spawner": false
+    },
+    "bg_bricks": {
+      "image": "assets/level1/background_tile.png",
+      "collideable": false,
+      "spawner": false
+    },
+    "spawner": {
+      "image": "assets/level1/cage.png",
+      "collideable": true,
+      "spawner": true
+    }
+  }
+}
