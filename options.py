@@ -32,6 +32,6 @@ def load_menu(game_state) -> World:
                         screen_size,
                         pattern,
                         {'B': lambda x, y, w: BackButton(x, y, w, back, game_state)})
-    background = pygame.image.load('assets/main_menu/Instructions.png')
+    background = pygame.transform.scale(pygame.image.load('assets/main_menu/Instructions.png'), screen_size)
     menu.background = Background(background)
     return menu
