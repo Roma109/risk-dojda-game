@@ -96,18 +96,18 @@ class SpawnerType(ObjectType):
         return enemies.SpawnerTile(x, y, w, self.image, self.key)
 
 
-class GoalType(ObjectType):
+class ItemType(ObjectType):
     def __init__(self, key, data):
         super().__init__(key, data, OTHER)
-        self.image = pygame.image.load(data["image"])
+        self.type = data.get('type', None)
 
     def load(self, data, w):
         x, y = data['x'], data['y']
-        return self.create(x, y, w)
+        type = data['item_type']
+        return player.Item(x, y, w, type)
 
     def create(self, x, y, w):
-        w.add_object(world.Tile(x, y, w, self.image, self.key))
-        return player.Item(x, y, w, 'goal')
+        return player.Item(x, y, w, self.type)
 
 
 class EnemyType(ObjectType):

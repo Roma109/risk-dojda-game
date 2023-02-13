@@ -9,7 +9,6 @@
     "B": "bricks",
     "P": "platform",
     "R": "rocket",
-    "G": "goal",
     "S": "spawner",
     "#": "bg_bricks",
     "-": "platform"

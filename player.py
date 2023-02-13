@@ -215,7 +215,7 @@ class Item(Entity):
         else:
             self.type = type
         image = pygame.image.load(ITEM_PROPERTIES[self.type][0])
-        super().__init__(x, y, world, image, None)
+        super().__init__(x, y, world, image, "item")
 
     def collide(self, other):
         if isinstance(other, Player) and self.active:
@@ -230,6 +230,11 @@ class Item(Entity):
                 self.world.add_object(FadingText(self.rect.center[0], self.rect.center[1] - 32,
                                                  self.world, ITEM_PROPERTIES[self.type][1],
                                                  ITEM_PROPERTIES[self.type][2]))
+
+    def save(self):
+        data = super().save()
+        data['item_type'] = self.type
+        return data
 
 
 class Rocket(Entity):
