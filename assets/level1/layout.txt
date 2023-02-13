@@ -1,10 +1,10 @@
-B         R       G         B
+B         R                 B
 BBBBBBBBBBBBBBBBBBBBBBBB    B
 B                         BBB
-B    S                    BGB
+B    S                    B B
 B                        BBPB
 BBBBBBBBB               BB  B
-BBBBBBB                BBG  B
+BBBBBBB                BB   B
 BBBBB                  BB  BB
 BBBB             PPP     B  B
 BBB                      B  B

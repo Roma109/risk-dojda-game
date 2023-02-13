@@ -31,6 +31,8 @@ class World:
         self.updateables = []
         self.background = None
         self.types = object_types.ObjectTypes()
+        # registering defaults
+        self.register_type(object_types.ItemType('item', {}))
 
     def register_type(self, object_type):
         self.types.register(object_type)

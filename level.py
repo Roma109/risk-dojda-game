@@ -110,7 +110,7 @@ def load_level(name):
         if data['key'] == 'rocket':
             continue
         data['id'] = id
-        w.add_object(cached_types[data['key']].load(data, w))
+        w.add_object(w.types.get(data['key']).load(data, w))
     return w
 
 
