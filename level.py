@@ -63,6 +63,8 @@ def fill_world(w, layout, objects_data, options, cached_types=None, loading_save
     if cached_types is None:
         cached_types = load_types(objects_data)
     for type in cached_types.values():
+        if type.key == 'item':
+            print(type)
         w.register_type(type)
     layout_instructions = options["layout"]
     for y in range(len(layout)):
