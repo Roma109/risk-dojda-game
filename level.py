@@ -63,6 +63,8 @@ def fill_world(w, layout, objects_data, options, cached_types=None, loading_save
     if cached_types is None:
         cached_types = load_types(objects_data)
     for type in cached_types.values():
+        if type.key == 'item':
+            print(type)
         w.register_type(type)
     layout_instructions = options["layout"]
     for y in range(len(layout)):
@@ -110,7 +112,7 @@ def load_level(name):
         if data['key'] == 'rocket':
             continue
         data['id'] = id
-        w.add_object(cached_types[data['key']].load(data, w))
+        w.add_object(w.types.get(data['key']).load(data, w))
     return w
 
 
